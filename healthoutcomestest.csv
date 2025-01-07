@@ -1,0 +1,193 @@
+﻿Age,Intervention,Metric,value
+0,no intervention,Outpatient,42872.2164
+1,no intervention,Outpatient,42872.2164
+2,no intervention,Outpatient,42872.2164
+3,no intervention,Outpatient,42872.2164
+4,no intervention,Outpatient,42872.2164
+5,no intervention,Outpatient,42872.2164
+6,no intervention,Outpatient,22535.3958
+7,no intervention,Outpatient,22535.3958
+8,no intervention,Outpatient,22535.3958
+9,no intervention,Outpatient,22535.3958
+10,no intervention,Outpatient,22535.3958
+11,no intervention,Outpatient,22535.3958
+0,RSVpreF,Outpatient,29715.37451
+1,RSVpreF,Outpatient,31663.7267
+2,RSVpreF,Outpatient,34109.39955
+3,RSVpreF,Outpatient,36057.75173
+4,RSVpreF,Outpatient,37121.89628
+5,RSVpreF,Outpatient,42872.2164
+6,RSVpreF,Outpatient,22535.3958
+7,RSVpreF,Outpatient,22535.3958
+8,RSVpreF,Outpatient,22535.3958
+9,RSVpreF,Outpatient,22535.3958
+10,RSVpreF,Outpatient,22535.3958
+11,RSVpreF,Outpatient,22535.3958
+0,Nirsevimab,Outpatient,22806.31538
+1,Nirsevimab,Outpatient,24625.30373
+2,Nirsevimab,Outpatient,28945.76752
+3,Nirsevimab,Outpatient,31231.85572
+4,Nirsevimab,Outpatient,31637.51676
+5,Nirsevimab,Outpatient,31803.1899
+6,Nirsevimab,Outpatient,16637.76793
+7,Nirsevimab,Outpatient,16633.6249
+8,Nirsevimab,Outpatient,17637.64307
+9,Nirsevimab,Outpatient,19945.73391
+10,Nirsevimab,Outpatient,21257.78237
+11,Nirsevimab,Outpatient,22030.44736
+0,Combined,Outpatient,2358.579891
+1,Combined,Outpatient,6094.238919
+2,Combined,Outpatient,14945.73665
+3,Combined,Outpatient,19463.14556
+4,Combined,Outpatient,20361.33892
+5,Combined,Outpatient,20734.1634
+6,Combined,Outpatient,10740.14006
+7,Combined,Outpatient,10731.854
+8,Combined,Outpatient,12739.89034
+9,Combined,Outpatient,17356.07203
+10,Combined,Outpatient,19980.16893
+11,Combined,Outpatient,21525.49892
+0,no intervention,ED,14886.18625
+1,no intervention,ED,14886.18625
+2,no intervention,ED,14886.18625
+3,no intervention,ED,14886.18625
+4,no intervention,ED,14886.18625
+5,no intervention,ED,14886.18625
+6,no intervention,ED,8855.372333
+7,no intervention,ED,8855.372333
+8,no intervention,ED,8855.372333
+9,no intervention,ED,8855.372333
+10,no intervention,ED,8855.372333
+11,no intervention,ED,8855.372333
+0,RSVpreF,ED,10317.83837
+1,RSVpreF,ED,10994.34955
+2,RSVpreF,ED,11843.54151
+3,RSVpreF,ED,12520.05268
+4,RSVpreF,ED,12889.54732
+5,RSVpreF,ED,14886.18625
+6,RSVpreF,ED,8855.372333
+7,RSVpreF,ED,8855.372333
+8,RSVpreF,ED,8855.372333
+9,RSVpreF,ED,8855.372333
+10,RSVpreF,ED,8855.372333
+11,RSVpreF,ED,8855.372333
+0,Nirsevimab,ED,7918.859508
+1,Nirsevimab,ED,8550.452682
+2,Nirsevimab,ED,10050.61372
+3,Nirsevimab,ED,10844.39435
+4,Nirsevimab,ED,10985.24887
+5,Nirsevimab,ED,11042.77427
+6,Nirsevimab,ED,6537.876287
+7,Nirsevimab,ED,6536.248268
+8,Nirsevimab,ED,6930.781151
+9,Nirsevimab,ED,7837.754519
+10,Nirsevimab,ED,8353.329114
+11,Nirsevimab,ED,8656.950859
+0,Combined,ED,818.9513509
+1,Combined,ED,2116.05518
+2,Combined,ED,5189.491894
+3,Combined,ED,6758.036653
+4,Combined,ED,7069.909347
+5,Combined,ED,7199.362292
+6,Combined,ED,4220.38024
+7,Combined,ED,4217.124202
+8,Combined,ED,5006.189969
+9,Combined,ED,6820.136704
+10,Combined,ED,7851.285895
+11,Combined,ED,8458.529386
+0,no intervention,Hospitalizations,5374.294933
+1,no intervention,Hospitalizations,9496.623433
+2,no intervention,Hospitalizations,6809.475967
+3,no intervention,Hospitalizations,4763.5796
+4,no intervention,Hospitalizations,4152.864267
+5,no intervention,Hospitalizations,3328.398567
+6,no intervention,Hospitalizations,2931.4336
+7,no intervention,Hospitalizations,2442.861333
+8,no intervention,Hospitalizations,2229.110967
+9,no intervention,Hospitalizations,2565.0044
+10,no intervention,Hospitalizations,1832.146
+11,no intervention,Hospitalizations,1832.146
+0,RSVpreF,Hospitalizations,3548.179671
+1,RSVpreF,Hospitalizations,6747.644898
+2,RSVpreF,Hospitalizations,5268.441115
+3,RSVpreF,Hospitalizations,3925.239567
+4,RSVpreF,Hospitalizations,3536.134665
+5,RSVpreF,Hospitalizations,3328.398567
+6,RSVpreF,Hospitalizations,2931.4336
+7,RSVpreF,Hospitalizations,2442.861333
+8,RSVpreF,Hospitalizations,2229.110967
+9,RSVpreF,Hospitalizations,2565.0044
+10,RSVpreF,Hospitalizations,1832.146
+11,RSVpreF,Hospitalizations,1832.146
+0,Nirsevimab,Hospitalizations,2858.91133
+1,Nirsevimab,Hospitalizations,5454.750327
+2,Nirsevimab,Hospitalizations,4597.511507
+3,Nirsevimab,Hospitalizations,3470.206192
+4,Nirsevimab,Hospitalizations,3064.602763
+5,Nirsevimab,Hospitalizations,2469.051068
+6,Nirsevimab,Hospitalizations,2164.262495
+7,Nirsevimab,Hospitalizations,1803.10297
+8,Nirsevimab,Hospitalizations,1744.64491
+9,Nirsevimab,Hospitalizations,2270.246136
+10,Nirsevimab,Hospitalizations,1728.274989
+11,Nirsevimab,Hospitalizations,1791.093281
+0,Combined,Hospitalizations,290.5306802
+1,Combined,Hospitalizations,1343.186465
+2,Combined,Hospitalizations,2372.606872
+3,Combined,Hospitalizations,2161.042766
+4,Combined,Hospitalizations,1961.184658
+5,Combined,Hospitalizations,1609.703569
+6,Combined,Hospitalizations,1397.09139
+7,Combined,Hospitalizations,1163.344607
+8,Combined,Hospitalizations,1260.178854
+9,Combined,Hospitalizations,1975.487873
+10,Combined,Hospitalizations,1624.403978
+11,Combined,Hospitalizations,1750.040563
+0,no intervention,Deaths,5.374294933
+1,no intervention,Deaths,9.496623433
+2,no intervention,Deaths,6.809475967
+3,no intervention,Deaths,4.7635796
+4,no intervention,Deaths,4.152864267
+5,no intervention,Deaths,3.328398567
+6,no intervention,Deaths,2.9314336
+7,no intervention,Deaths,2.442861333
+8,no intervention,Deaths,2.229110967
+9,no intervention,Deaths,2.5650044
+10,no intervention,Deaths,1.832146
+11,no intervention,Deaths,1.832146
+0,RSVpreF,Deaths,3.548179671
+1,RSVpreF,Deaths,6.747644898
+2,RSVpreF,Deaths,5.268441115
+3,RSVpreF,Deaths,3.925239567
+4,RSVpreF,Deaths,3.536134665
+5,RSVpreF,Deaths,3.328398567
+6,RSVpreF,Deaths,2.9314336
+7,RSVpreF,Deaths,2.442861333
+8,RSVpreF,Deaths,2.229110967
+9,RSVpreF,Deaths,2.5650044
+10,RSVpreF,Deaths,1.832146
+11,RSVpreF,Deaths,1.832146
+0,Nirsevimab,Deaths,2.85891133
+1,Nirsevimab,Deaths,5.454750327
+2,Nirsevimab,Deaths,4.597511507
+3,Nirsevimab,Deaths,3.470206192
+4,Nirsevimab,Deaths,3.064602763
+5,Nirsevimab,Deaths,2.469051068
+6,Nirsevimab,Deaths,2.164262495
+7,Nirsevimab,Deaths,1.80310297
+8,Nirsevimab,Deaths,1.74464491
+9,Nirsevimab,Deaths,2.270246136
+10,Nirsevimab,Deaths,1.728274989
+11,Nirsevimab,Deaths,1.791093281
+0,Combined,Deaths,0.29053068
+1,Combined,Deaths,1.343186465
+2,Combined,Deaths,2.372606872
+3,Combined,Deaths,2.161042766
+4,Combined,Deaths,1.961184658
+5,Combined,Deaths,1.609703569
+6,Combined,Deaths,1.39709139
+7,Combined,Deaths,1.163344607
+8,Combined,Deaths,1.260178854
+9,Combined,Deaths,1.975487873
+10,Combined,Deaths,1.624403978
+11,Combined,Deaths,1.750040563
