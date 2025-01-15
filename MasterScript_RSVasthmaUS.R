@@ -24,12 +24,10 @@ Outpatient_mAb_df <- Outpatient_df%>%filter(Intervention == "Nirsevimab")
 Outpatient_rsvPreF_df <- Outpatient_df%>%filter(Intervention == "RSVpreF")
 Outpatient_Combined_df <- Outpatient_df%>%filter(Intervention == "Combined")
 
-#Outpatient episodes: sum point estimates - bins of 6mo interval
-sum(Outpatient_no_df[1:6,4])
-sum(Outpatient_no_df[7:12,4])
-sum(Outpatient_mAb_df[1:6,4])
-sum(Outpatient_mAb_df[7:12,4])
-sum(Outpatient_rsvPreF_df[1:6,4])
-sum(Outpatient_rsvPreF_df[7:12,4])
-sum(Outpatient_Combined_df[1:6,4])
-sum(Outpatient_Combined_df[7:12,4])
+# Outpatient episodes: sum point estimates across years and ages
+# Replicate for upper and lower CI
+RSV_no <- sum(Outpatient_no_df[1:12,4:15])
+RSV_mAb <- sum(Outpatient_mAb_df[1:12,4:15])
+RSV_mat <- sum(Outpatient_rsvPreF_df[1:12,4:15])
+RSV_com <- sum(Outpatient_Combined_df[1:12,4:15])
+
