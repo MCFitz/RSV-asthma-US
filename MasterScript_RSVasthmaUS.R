@@ -38,7 +38,7 @@ RSV_com <- sum(Outpatient_Combined_df[1:12,4:15])
 tot_OP_no <- mort_adj_func(RSV_no, U5 = U5_mort, U9 = U9_mort)
 tot_OP_mAb <- mort_adj_func(RSV_mAb, U5 = U5_mort, U9 = U9_mort)
 tot_OP_rsvPreF <-mort_adj_func(RSV_mat, U5 = U5_mort, U9 = U9_mort)
-tot_OP_Combined <-mort_adj_func(RSV_comb, U5 = U5_mort, U9 = U9_mort)
+tot_OP_Combined <-mort_adj_func(RSV_com, U5 = U5_mort, U9 = U9_mort)
 
 # number of kids surviving to age 6 without RSV-LRTI outpatient or ED encounter for each strategy
 # no intervention, mAb, rsvPreF, Combined strategies

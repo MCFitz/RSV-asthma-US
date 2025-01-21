@@ -25,7 +25,7 @@ Hosps_rsvPreF_df <- Hosps_df%>%filter(Intervention == "RSVpreF")
 #Hosps_Combined_df <- Hosps_df%>%filter(Intervention == "Combined")
 
 #Hospitalization episodes: sum point estimates 
-num_Hosps_no <- sum(Hosps_no_df[1:12,4])
+num_Hosps_no <- sum(Hosps_no_df$value)
 num_Hosps_mAb <- sum(Hosps_mAb_df[1:12,4])
 num_Hosps_rsvPreF <- sum(Hosps_rsvPreF_df[1:12,4])
 #num_Hosps_combined <- sum(Hosps_Combined_df[1:12,4])
