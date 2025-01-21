@@ -2,8 +2,10 @@
 
 ################################################################################
 
+hdatahosp <- read.csv("healthoutcomeshosp.csv")
+
 # Extract just hospitalizations
-hosps_u_df <- hdata%>%filter(Metric == "Hospitalizations")
+hosps_u_df <- hdatahosp%>%filter(Metric == "Hospitalizations")
 
 hosps_no_u_df <- hosps_u_df%>%filter(Intervention == "no intervention")
 hosps_mAb_u_df <- hosps_u_df%>%filter(Intervention == "Nirsevimab")

@@ -1,0 +1,111 @@
+# Master Script for RSV-asthma-US analysis - ALTERNATIVE CONSIDERATION W/ HOSPS
+# Created by Meagan Fitzpatrick and Ian Galbreath
+
+library(tidyverse)
+hdatahosp <- read.csv("healthoutcomeshosp.csv")
+# Set number of trials
+trials <- 1000
+
+# Import data from Hutton
+source("ImportHuttonData.R")
+source("PARAMS_asthma.R")
+
+# sum cases by intervention type
+# assuming all recorded patients are mutually exclusive
+# IAN_ADD please check if this is what Hutton assumed
+# except hospitalization and death?
+# subtract deaths from hospitalizations first?
+# Hospitalizations episodes: Extracting just outpatient episodes of RSV-LRTI
+Hosps_df <- hdatahosp%>%filter(Metric == "Hospitalizations")
+
+#Hospitalizations episodes: Delineate RSV-LRTI events by intervention   
+Hosps_no_df <- Hosps_df%>%filter(Intervention == "no intervention")
+Hosps_mAb_df <- Hosps_df%>%filter(Intervention == "Nirsevimab")
+Hosps_rsvPreF_df <- Hosps_df%>%filter(Intervention == "RSVpreF")
+#Hosps_Combined_df <- Hosps_df%>%filter(Intervention == "Combined")
+
+#Hospitalization episodes: sum point estimates 
+num_Hosps_no <- sum(Hosps_no_df[1:12,4])
+num_Hosps_mAb <- sum(Hosps_mAb_df[1:12,4])
+num_Hosps_rsvPreF <- sum(Hosps_rsvPreF_df[1:12,4])
+#num_Hosps_combined <- sum(Hosps_Combined_df[1:12,4])
+
+############## ADAPTED MALI CODE
+# S.5
+# adjust number of hospitalizations from LRTI while accounting for all-cause mortality out to 6 years
+
+tot_Hosps_no <- mort_adj_func(num_Hosps_no, U5 = U5_mort, U9 = U9_mort)
+tot_Hosps_mAb <- mort_adj_func(num_Hosps_mAb, U5 = U5_mort, U9 = U9_mort)
+tot_Hosps_rsvPreF <-mort_adj_func(num_Hosps_mAb, U5 = U5_mort, U9 = U9_mort)
+#tot_Hosps_Combined <-mort_adj_func(num_Hosps_combined, U5 = U5_mort, U9 = U9_mort)
+
+# number of kids surviving to age 6 without RSV-LRTI hospitalization for each strategy
+# no intervention, mAb, rsvPreF, Combined strategies
+tot_wo_Hosps_no <- pop_tot - tot_Hosps_no
+tot_wo_Hosps_mAb <- pop_tot - tot_Hosps_mAb
+tot_wo_Hosps_rsvPreF <- pop_tot - tot_Hosps_rsvPreF
+#tot_wo_Hosps_Combined <- pop_tot - tot_Hosps_Combined
+
+# calculate rate/prevalence of asthma among those without RSV-LRTI hospitalization
+r_asth_norsv <- prev_no_rsv_func(prev_tot, pop_tot, rr_w, tot_Hosps_no, tot_wo_Outpatient_no)
+
+# number of asthma cases among those without RSV-LRTI hospitalization
+asth_wo_Hosps_no <- asth_no_rsv_func(tot_wo_Hosps_no, r_asth_norsv)
+asth_wo_Hosps_mAb <- asth_no_rsv_func(tot_wo_Hosps_mAb, r_asth_norsv)
+asth_wo_Hosps_rsvPreF <- asth_no_rsv_func(tot_wo_Hosps_rsvPreF, r_asth_norsv)
+#asth_wo_Hosps_Combined <- asth_no_rsv_func(tot_wo_Hosps_Combined, r_asth_norsv)
+
+# number of asthma cases among those with RSV-LRTI hospitalization
+asth_Hosps_no <- asth_rsv_func(tot_Hosps_no, r_asth_norsv, rr_w)
+asth_Hosps_mAb <- asth_rsv_func(tot_Hosps_mAb, r_asth_norsv, rr_w)
+asth_Hosps_rsvPreF <- asth_rsv_func(tot_Hosps_rsvPreF, r_asth_norsv, rr_w)
+#asth_Hosps_Combined <- asth_rsv_func(tot_Hosps_Combined, r_asth_norsv, rr_w)
+
+# total with asthma
+tot_asth_no <- tot_asth_func(asth_Hosps_no, asth_wo_Hosps_no)
+tot_asth_mAb <- tot_asth_func(asth_Hosps_mAb, asth_wo_Hosps_mAb)
+tot_asth_rsvPreF <-tot_asth_func(asth_Hosps_rsvPreF, asth_wo_Hosps_rsvPreF)
+#tot_asth_Combined <-tot_asth_func(asth_Hosps_Combined, asth_wo_Hosps_Combined)
+
+# number of asthma cases among those with RSV-LRTI hospitalization had they not been infected
+asth_null_no <- asth_rsv_null_func(tot_Hosps_no, r_asth_norsv)
+asth_null_mAb <- asth_rsv_null_func(tot_Hosps_mAb, r_asth_norsv)
+asth_null_rsvPreF <-asth_rsv_null_func(tot_Hosps_rsvPreF, r_asth_norsv)
+#asth_null_Combined <-asth_rsv_null_func(tot_Hosps_Combined, r_asth_norsv)
+
+# RSV-LRTI hospitalization attributable asthma
+att_no <- asth_rsv_att_func(asth_Hosps_no, asth_null_no)
+att_mAb <- asth_rsv_att_func(asth_Hosps_mAb, asth_null_mAb)
+att_rsvPreF <-asth_rsv_att_func(asth_Hosps_rsvPreF, asth_null_rsvPreF)
+#att_Combined <-asth_rsv_att_func(asth_Hosps_Combined, asth_null_Combined)
+
+# total recurrent wheeze/asthma, all RSV LRTI hospitalization prevented
+asth_all_RSV_prev <- asth_null_no + asth_wo_Hosps_no
+
+# S.6
+#source("uncertaintyLRTIUSA.R")
+
+# S.7
+#source("uncertaintyhosp.R")
+#source("uncertaintydeaths.R")
+#source("asthmacredibleintervals.R")
+
+################################################################################
+
+# Mali Asthma Project
+
+################################################################################
+# Step 1: load in health outcomes data for base case and uncertainty analysis
+
+# Step 2: load asthma params
+
+# Step 3: create functions for asthma calcs
+
+# Step 4: transform data to desired structures
+
+# Step 5: apply asthma functions to obtain output
+
+# Step 6: repeat for uncertainty analysis
+
+# Step 7: obtain 95% credible intervals for all calculations
+################################################################################
