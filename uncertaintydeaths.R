@@ -1,20 +1,10 @@
 #Uncertainty Deaths
-
-# NEEDS TO BE ADOPTED FROM Hospitalizations
-
-hdata <- read.csv("healthoutcomestest.csv")
-
-# Extract just Deaths
-Deaths_u_df <- hdata%>%filter(Metric == "Deaths")
-
-Deaths_no_u_df <- hosps_u_df%>%filter(Intervention == "no intervention")
-Deaths_mAb_u_df <- hosps_u_df%>%filter(Intervention == "Nirsevimab")
-Deaths_rsvPreF_u_df <- hosps_u_df%>%filter(Intervention == "RSVpreF")
-Deaths_Combined_u_df <- hosps_u_df%>%filter(Intervention == "Combined")
-
+source("ImportHuttonData.R")
+source("PARAMS_asthma.R")
+source("asthmafunctionsMali.R")
+#ADOPTED FROM Hospitalizations
 # Transform data structure to be rows = trials, columns = age in months
 unique_ages <- unique(Deaths_u_df$Age)
-
 Deaths_age_no <- Deaths_no_u_df %>% 
   filter(Age == unique_ages[1]) %>% 
   select(value)
@@ -28,7 +18,6 @@ for (idx in 2:length(unique_ages)) {
                         temp)
 }
 
-
 Deaths_age_mAb <- Deaths_mAb_u_df %>% 
   filter(Age == unique_ages[1]) %>% 
   select(value)
@@ -41,7 +30,6 @@ for (idx in 2:length(unique_ages)) {
   Deaths_age_mAb <- cbind(Deaths_age_mAb, 
                          temp2)
 }
-
 
 Deaths_age_rsvPreF <- Deaths_rsvPreF_u_df %>% 
   filter(Age == unique_ages[1]) %>% 
@@ -101,11 +89,6 @@ Deaths_pd_rsvPreF <- (Deaths_no_agebin - Deaths_rsvPreF_agebin) / Deaths_no_ageb
 Deaths_pd_Combined <- (Deaths_no_agebin - Deaths_Combined_agebin) / Deaths_no_agebin * 100
 
 ## point estimate calculations
-Deaths_df <- hdata%>%filter(Metric == "Deaths")
-Deaths_no_df <- Deaths_df%>%filter(Intervention == "no intervention")
-Deaths_mAb_df <- Deaths_df%>%filter(Intervention == "Nirsevimab")
-Deaths_rsvPreF_df <- Deaths_df%>%filter(Intervention == "RSVpreF")
-Deaths_Combined_df <- Deaths_df%>%filter(Intervention == "Combined")
 
 sum(Deaths_no_df[1:6,4])
 sum(Deaths_no_df[7:12,4])

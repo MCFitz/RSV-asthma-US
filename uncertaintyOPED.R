@@ -1,26 +1,12 @@
 #Uncertainty ED/OP
+# Import data from Hutton/Parameters/Functions
+source("ImportHuttonData.R")
+source("PARAMS_asthma.R")
+source("asthmafunctionsMali.R")
 
-# NEEDS TO BE ADOPTED FROM Hospitalizations
-
-hdata <- read.csv("healthoutcomestest.csv")
-
-# Extract just OP and ED
-OP_u_df <- hdata%>%filter(Metric == "Outpatient")
-ED_u_df <- hdata%>%filter(Metric == "ED")
-
-OP_no_u_df <- OP_u_df%>%filter(Intervention == "no intervention")
-OP_mAb_u_df <- OP_u_df%>%filter(Intervention == "Nirsevimab")
-OP_rsvPreF_u_df <- OP_u_df%>%filter(Intervention == "RSVpreF")
-OP_Combined_u_df <- OP_u_df%>%filter(Intervention == "Combined")
-
-ED_no_u_df <- ED_u_df%>%filter(Intervention == "no intervention")
-ED_mAb_u_df <- ED_u_df%>%filter(Intervention == "Nirsevimab")
-ED_rsvPreF_u_df <- ED_u_df%>%filter(Intervention == "RSVpreF")
-ED_Combined_u_df <- ED_u_df%>%filter(Intervention == "Combined")
-
+#ADOPTED FROM Hospitalizations
 # Transform data structure to be rows = trials, columns = age in months
 unique_ages <- unique(OP_u_df$Age)
-
 OP_age_no <- OP_no_u_df %>% 
   filter(Age == unique_ages[1]) %>% 
   select(value)
@@ -46,7 +32,6 @@ for (idx in 2:length(unique_ages)) {
   OP_age_mAb <- cbind(OP_age_mAb, 
                           temp2)
 }
-
 
 OP_age_rsvPreF <- OP_rsvPreF_u_df %>% 
   filter(Age == unique_ages[1]) %>% 
@@ -99,7 +84,6 @@ for (idx in 2:length(unique_ages)) {
   ED_age_mAb <- cbind(ED_age_mAb, 
                       temp2)
 }
-
 
 ED_age_rsvPreF <- ED_rsvPreF_u_df %>% 
   filter(Age == unique_ages[1]) %>% 

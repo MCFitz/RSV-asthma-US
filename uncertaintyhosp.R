@@ -2,93 +2,51 @@
 
 ################################################################################
 
-hdatahosp <- read.csv("healthoutcomeshosp.csv")
+# Import data from Hutton/Parameters/Functions
+source("ImportHuttonData.R")
+source("PARAMS_asthma.R")
+source("asthmafunctionsMali.R")
 
-# Extract just hospitalizations
-hosps_u_df <- hdatahosp%>%filter(Metric == "Hospitalizations")
+# Three estimates - PE, UL, LL while also setting UL and LL on asthma prevention by intervention
+# Transform data structure to be rows = trials, columns = age in months - 1 row each for UL, LL, PE
+# Mali transformation as below
 
-hosps_no_u_df <- hosps_u_df%>%filter(Intervention == "no intervention")
-hosps_mAb_u_df <- hosps_u_df%>%filter(Intervention == "Nirsevimab")
-hosps_rsvPreF_u_df <- hosps_u_df%>%filter(Intervention == "RSVpreF")
-hosps_Combined_u_df <- hosps_u_df%>%filter(Intervention == "Combined")
+hosps_age_no <- as.data.frame(t(hosps_no_u_df[,4:6]))
+nms_no <- as.data.frame(t(hosps_no_u_df$Age))
+hosps_age_no <- setNames(hosps_age_no,nms_no)
 
-# Transform data structure to be rows = trials, columns = age in months
-unique_ages <- unique(hosps_u_df$Age)
+hosps_age_mAb <- as.data.frame(t(hosps_mAb_u_df[,4:6]))
+nms_mAb <- as.data.frame(t(hosps_mAb_u_df$Age))
+hosps_age_mAb <- setNames(hosps_age_mAb,nms_mAb)
 
-hosps_age_no <- hosps_no_u_df %>% 
-  filter(Age == unique_ages[1]) %>% 
-  select(value)
-names(hosps_age_no) <- paste0(names(hosps_age_no), "_age", unique_ages[1])
-for (idx in 2:length(unique_ages)) {
-  temp <- hosps_no_u_df %>% 
-    filter(Age == unique_ages[idx]) %>% 
-    select(value)
-  names(temp) <- paste0(names(temp), "_age", unique_ages[idx])
-  hosps_age_no <- cbind(hosps_age_no, 
-                        temp)
-}
+hosps_age_rsvPreF <- as.data.frame(t(hosps_rsvPreF_u_df[,4:6]))
+nms_rsvPreF <- as.data.frame(t(hosps_rsvPreF_u_df$Age))
+hosps_age_rsvPreF <- setNames(hosps_age_rsvPreF,nms_rsvPreF)
 
-
-hosps_age_mAb <- hosps_mAb_u_df %>% 
-  filter(Age == unique_ages[1]) %>% 
-  select(value)
-names(hosps_age_mAb) <- paste0(names(hosps_age_mAb), "_age", unique_ages[1])
-for (idx in 2:length(unique_ages)) {
-  temp2 <- hosps_mAb_u_df %>% 
-    filter(Age == unique_ages[idx]) %>% 
-    select(value)
-  names(temp2) <- paste0(names(temp2), "_age", unique_ages[idx])
-  hosps_age_mAb <- cbind(hosps_age_mAb, 
-                          temp2)
-}
-
-
-hosps_age_rsvPreF <- hosps_rsvPreF_u_df %>% 
-  filter(Age == unique_ages[1]) %>% 
-  select(value)
-names(hosps_age_rsvPreF) <- paste0(names(hosps_age_rsvPreF), "_age", unique_ages[1])
-for (idx in 2:length(unique_ages)) {
-  temp3 <- hosps_rsvPreF_u_df %>% 
-    filter(Age == unique_ages[idx]) %>% 
-    select(value)
-  names(temp3) <- paste0(names(temp3), "_age", unique_ages[idx])
-  hosps_age_rsvPreF <- cbind(hosps_age_rsvPreF, 
-                               temp3)
-}
-
-hosps_age_Combined <- hosps_Combined_u_df %>% 
-  filter(Age == unique_ages[1]) %>% 
-  select(value)
-names(hosps_age_Combined) <- paste0(names(hosps_age_Combined), "_age", unique_ages[1])
-for (idx in 2:length(unique_ages)) {
-  temp3 <- hosps_Combined_u_df %>% 
-    filter(Age == unique_ages[idx]) %>% 
-    select(value)
-  names(temp3) <- paste0(names(temp3), "_age", unique_ages[idx])
-  hosps_age_Combined <- cbind(hosps_age_Combined, 
-                             temp3)
-}
+hosps_age_Combined <- as.data.frame(t(hosps_Combined_u_df[,4:6]))
+nms_Combined <- as.data.frame(t(hosps_Combined_u_df$Age))
+hosps_age_Combined <- setNames(hosps_age_Combined,nms_Combined)
 
 # Bin to age categories
 age_cats <- c("0-<6", "6-<12")
 
-hosps_no_agebin <- cbind(rowSums(hosps_age_no[, 1:6]), rowSums(hosps_age_no[, 7:12]))
+hosps_no_agebin <- cbind(rowSums(hosps_age_no[1, 1:6]), rowSums(hosps_age_no[1, 7:12]))
 colnames(hosps_no_agebin) <- age_cats
 
-hosps_mAb_agebin <- cbind(rowSums(hosps_age_mAb[, 1:6]), rowSums(hosps_age_mAb[, 7:12]))
+hosps_mAb_agebin <- cbind(rowSums(hosps_age_mAb[1, 1:6]), rowSums(hosps_age_mAb[1, 7:12]))
 colnames(hosps_mAb_agebin) <- age_cats
 
-hosps_rsvPreF_agebin <- cbind(rowSums(hosps_age_rsvPreF[, 1:6]), rowSums(hosps_age_rsvPreF[, 7:12]))
+hosps_rsvPreF_agebin <- cbind(rowSums(hosps_age_rsvPreF[1, 1:6]), rowSums(hosps_age_rsvPreF[1, 7:12]))
 colnames(hosps_rsvPreF_agebin) <- age_cats
 
-hosps_Combined_agebin <- cbind(rowSums(hosps_age_Combined[, 1:6]), rowSums(hosps_age_Combined[, 7:12]))
+hosps_Combined_agebin <- cbind(rowSums(hosps_age_Combined[1, 1:6]), rowSums(hosps_age_Combined[1, 7:12]))
 colnames(hosps_Combined_agebin) <- age_cats
 
 # total hosps
-hosps_tot_no <- rowSums(hosps_age_no)
-hosps_tot_mAb <- rowSums(hosps_age_mAb)
-hosps_tot_rsvPreF <- rowSums(hosps_age_rsvPreF)
-hosps_tot_Combined <- rowSums(hosps_age_Combined)
+hosps_tot_no <- rowSums(hosps_age_no[1,])
+hosps_tot_mAb <- rowSums(hosps_age_mAb[1,])
+hosps_tot_rsvPreF <- rowSums(hosps_age_rsvPreF[1,])
+hosps_tot_Combined <- rowSums(hosps_age_Combined[1,])
 
 # total hosps percent decrease from status quo
 hosps_pd_tot_mAb <- (hosps_tot_no - hosps_tot_mAb) / hosps_tot_no * 100
@@ -100,48 +58,24 @@ hosps_pd_mAb <- (hosps_no_agebin - hosps_mAb_agebin) / hosps_no_agebin * 100
 hosps_pd_rsvPreF <- (hosps_no_agebin - hosps_rsvPreF_agebin) / hosps_no_agebin * 100
 hosps_pd_Combined <- (hosps_no_agebin - hosps_Combined_agebin) / hosps_no_agebin * 100
 
-## point estimate calculations
-hosps_df <- hdata%>%filter(Metric == "Hospitalizations")
-hosps_no_df <- hosps_df%>%filter(Intervention == "no intervention")
-hosps_mAb_df <- hosps_df%>%filter(Intervention == "Nirsevimab")
-hosps_rsvPreF_df <- hosps_df%>%filter(Intervention == "RSVpreF")
-hosps_Combined_df <- hosps_df%>%filter(Intervention == "Combined")
-
-sum(hosps_no_df[1:6,4])
-sum(hosps_no_df[7:12,4])
-
-sum(hosps_mAb_df[1:6,4])
-sum(hosps_mAb_df[7:12,4])
-
-sum(hosps_rsvPreF_df[1:6,4])
-sum(hosps_rsvPreF_df[7:12,4])
-
-sum(hosps_Combined_df[1:6,4])
-sum(hosps_Combined_df[7:12,4])
+## point estimate calculations, binned into 6 mo period
+sum(Hosps_no_df[1:6,4])
+sum(Hosps_no_df[7:12,4])
+sum(Hosps_mAb_df[1:6,4])
+sum(Hosps_mAb_df[7:12,4])
+sum(Hosps_rsvPreF_df[1:6,4])
+sum(Hosps_rsvPreF_df[7:12,4])
+sum(Hosps_Combined_df[1:6,4])
+sum(Hosps_Combined_df[7:12,4])
 
 # adjust number of Hospitalizations to account for all-cause mortality out to 6 years
-tot_hosps_no_u <- mort_adj_func(rowSums(hosps_age_no), U5 = U5_mort, U9 = U9_mort)
+tot_hosps_no_u <- mort_adj_func(rowSums(hosps_age_no[1,]), U5 = U5_mort, U9 = U9_mort)
 
 # adjust number of Hospitalizations to account for all-cause mortality out to 6 years
-tot_hosps_no_u <- mort_adj_func(rowSums(hosps_age_no), U5 = U5_mort, U9 = U9_mort)
-tot_hosps_mAb_u <- mort_adj_func(rowSums(hosps_age_mAb), U5 = U5_mort, U9 = U9_mort)
-tot_hosps_rsvPreF_u <-mort_adj_func(rowSums(hosps_age_rsvPreF), U5 = U5_mort, U9 = U9_mort)
-tot_hosps_Combined_u <-mort_adj_func(rowSums(hosps_age_Combined), U5 = U5_mort, U9 = U9_mort)
-
-# number of kids surviving to age 6 without RSV-LRTI associated hosp for each strategy
-tot_wo_hosps_no_u <- pop_tot - tot_hosps_no_u
-tot_wo_hosps_mAb_u <- pop_tot - tot_hosps_mAb_u
-tot_wo_hosps_rsvPreF_u <- pop_tot - tot_hosps_rsvPreF_u
-tot_wo_hosps_Combined_u <- pop_tot - tot_hosps_Combined_u
-
-# calculate rate/prevalence of asthma among those without RSV-LRTI hosp
-r_asth_norsv_u <- prev_no_rsv_func(prev_tot_u, pop_tot, rr_w_u, tot_hosps_no_u, tot_wo_hosps_no_u)
-
-# adjust number of Hospitalizations to account for all-cause mortality out to 6 years
-tot_hosps_no_u <- mort_adj_func(rowSums(hosps_age_no), U5 = U5_mort, U9 = U9_mort)
-tot_hosps_mAb_u <- mort_adj_func(rowSums(hosps_age_mAb), U5 = U5_mort, U9 = U9_mort)
-tot_hosps_rsvPreF_u <-mort_adj_func(rowSums(hosps_age_rsvPreF), U5 = U5_mort, U9 = U9_mort)
-tot_hosps_Combined_u <-mort_adj_func(rowSums(hosps_age_Combined), U5 = U5_mort, U9 = U9_mort)
+tot_hosps_no_u <- mort_adj_func(rowSums(hosps_age_no[1,]), U5 = U5_mort, U9 = U9_mort)
+tot_hosps_mAb_u <- mort_adj_func(rowSums(hosps_age_mAb[1,]), U5 = U5_mort, U9 = U9_mort)
+tot_hosps_rsvPreF_u <-mort_adj_func(rowSums(hosps_age_rsvPreF[1,]), U5 = U5_mort, U9 = U9_mort)
+tot_hosps_Combined_u <-mort_adj_func(rowSums(hosps_age_Combined[1,]), U5 = U5_mort, U9 = U9_mort)
 
 # number of kids surviving to age 6 without RSV-LRTI associated hosp for each strategy
 tot_wo_hosps_no_u <- pop_tot - tot_hosps_no_u
@@ -210,3 +144,60 @@ all_rsv_prev_u <- asth_no_rsv_func(pop_tot, r_asth_norsv_u)
 all_rsv_prev_pr_u <- all_rsv_prev_u / pop_tot * 10000
 all_rsv_prev_pd_u <- (tot_asth_no_u - all_rsv_prev_u) / tot_asth_no_u * 100
 
+
+## MALI TRANSFORMATION
+# Transform data structure to be rows = trials, columns = age in months - 1 row each for UL, LL, PE
+#unique_ages <- unique(hosps_u_df$Age)
+
+#hosps_age_no <- hosps_no_u_df %>% 
+#  filter(Age == unique_ages[1]) %>% 
+#  select(value)
+#names(hosps_age_no) <- paste0(names(hosps_age_no), "_age", unique_ages[1])
+#for (idx in 2:length(unique_ages)) {
+#  temp <- hosps_no_u_df %>% 
+#    filter(Age == unique_ages[idx]) %>% 
+#    select(value)
+#  names(temp) <- paste0(names(temp), "_age", unique_ages[idx])
+#  hosps_age_no <- cbind(hosps_age_no, 
+#                        temp)
+#}
+
+#hosps_age_mAb <- hosps_mAb_u_df %>% 
+#  filter(Age == unique_ages[1]) %>% 
+#  select(value)
+#names(hosps_age_mAb) <- paste0(names(hosps_age_mAb), "_age", unique_ages[1])
+#for (idx in 2:length(unique_ages)) {
+#  temp2 <- hosps_mAb_u_df %>% 
+#    filter(Age == unique_ages[idx]) %>% 
+#    select(value)
+#  names(temp2) <- paste0(names(temp2), "_age", unique_ages[idx])
+#  hosps_age_mAb <- cbind(hosps_age_mAb, 
+#                          temp2)
+#}
+
+
+#hosps_age_rsvPreF <- hosps_rsvPreF_u_df %>% 
+#  filter(Age == unique_ages[1]) %>% 
+#  select(value)
+#names(hosps_age_rsvPreF) <- paste0(names(hosps_age_rsvPreF), "_age", unique_ages[1])
+#for (idx in 2:length(unique_ages)) {
+#  temp3 <- hosps_rsvPreF_u_df %>% 
+#    filter(Age == unique_ages[idx]) %>% 
+#    select(value)
+#  names(temp3) <- paste0(names(temp3), "_age", unique_ages[idx])
+#  hosps_age_rsvPreF <- cbind(hosps_age_rsvPreF, 
+#                               temp3)
+#}
+
+#hosps_age_Combined <- hosps_Combined_u_df %>% 
+#  filter(Age == unique_ages[1]) %>% 
+#  select(value)
+#names(hosps_age_Combined) <- paste0(names(hosps_age_Combined), "_age", unique_ages[1])
+#for (idx in 2:length(unique_ages)) {
+#  temp3 <- hosps_Combined_u_df %>% 
+#    filter(Age == unique_ages[idx]) %>% 
+#    select(value)
+#  names(temp3) <- paste0(names(temp3), "_age", unique_ages[idx])
+#  hosps_age_Combined <- cbind(hosps_age_Combined, 
+#                             temp3)
+#}

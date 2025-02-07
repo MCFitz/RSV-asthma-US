@@ -1,42 +1,21 @@
 # Master Script for RSV-asthma-US analysis - ALTERNATIVE CONSIDERATION W/ HOSPS
 # Created by Meagan Fitzpatrick and Ian Galbreath
 
-library(tidyverse)
-hdatahosp <- read.csv("healthoutcomeshosp.csv")
-# Set number of trials
-trials <- 1000
-
-# Import data from Hutton
+# Import data from Hutton/Parameters/Functions
 source("ImportHuttonData.R")
 source("PARAMS_asthma.R")
+source("asthmafunctionsMali.R")
 
-# sum cases by intervention type
-# assuming all recorded patients are mutually exclusive
-# IAN_ADD please check if this is what Hutton assumed
-# except hospitalization and death?
-# subtract deaths from hospitalizations first?
-# Hospitalizations episodes: Extracting just outpatient episodes of RSV-LRTI
-Hosps_df <- hdatahosp%>%filter(Metric == "Hospitalizations")
-
-#Hospitalizations episodes: Delineate RSV-LRTI events by intervention   
-Hosps_no_df <- Hosps_df%>%filter(Intervention == "no intervention")
-Hosps_mAb_df <- Hosps_df%>%filter(Intervention == "Nirsevimab")
-Hosps_rsvPreF_df <- Hosps_df%>%filter(Intervention == "RSVpreF")
-#Hosps_Combined_df <- Hosps_df%>%filter(Intervention == "Combined")
-
-#Hospitalization episodes: sum point estimates 
-num_Hosps_no <- sum(Hosps_no_df$value)
-num_Hosps_mAb <- sum(Hosps_mAb_df[1:12,4])
-num_Hosps_rsvPreF <- sum(Hosps_rsvPreF_df[1:12,4])
-#num_Hosps_combined <- sum(Hosps_Combined_df[1:12,4])
+#Import Hutton data imports and rearranges data to usable form
 
 ############## ADAPTED MALI CODE
 # S.5
 # adjust number of hospitalizations from LRTI while accounting for all-cause mortality out to 6 years
+# Question to Justin/team, do we need to adjust?
 
-tot_Hosps_no <- mort_adj_func(num_Hosps_no, U5 = U5_mort, U9 = U9_mort)
-tot_Hosps_mAb <- mort_adj_func(num_Hosps_mAb, U5 = U5_mort, U9 = U9_mort)
-tot_Hosps_rsvPreF <-mort_adj_func(num_Hosps_mAb, U5 = U5_mort, U9 = U9_mort)
+tot_Hosps_no <- num_Hosps_no
+tot_Hosps_mAb <- num_Hosps_mAb
+tot_Hosps_rsvPreF <- num_Hosps_mAb
 #tot_Hosps_Combined <-mort_adj_func(num_Hosps_combined, U5 = U5_mort, U9 = U9_mort)
 
 # number of kids surviving to age 6 without RSV-LRTI hospitalization for each strategy
@@ -47,7 +26,7 @@ tot_wo_Hosps_rsvPreF <- pop_tot - tot_Hosps_rsvPreF
 #tot_wo_Hosps_Combined <- pop_tot - tot_Hosps_Combined
 
 # calculate rate/prevalence of asthma among those without RSV-LRTI hospitalization
-r_asth_norsv <- prev_no_rsv_func(prev_tot, pop_tot, rr_w, tot_Hosps_no, tot_wo_Outpatient_no)
+r_asth_norsv <- prev_no_rsv_func(prev_tot, pop_tot, rr_w, tot_Hosps_no, tot_wo_Hosps_no)
 
 # number of asthma cases among those without RSV-LRTI hospitalization
 asth_wo_Hosps_no <- asth_no_rsv_func(tot_wo_Hosps_no, r_asth_norsv)

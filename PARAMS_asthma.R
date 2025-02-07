@@ -46,5 +46,11 @@ rr_w_sd <- (log(rr_w_h) - log(rr_w_l))/ (1.96*2) # standard deviation
 rr_w_sample <- rnorm(trials, log(rr_w), rr_w_sd) # normal dist of log
 rr_w_u <- exp(rr_w_sample) # retransformed uncertainty distribution
 
+#USA Asthma Cost Calculation: https://www.cdc.gov/national-asthma-control-program/php/cost-calculator/index.html
+#Source data from Medical Expenditure panel survey, Behavioral Risk Factor Surveillance System, National Survey of Children's Health, US Census
+#Uses Predictive model called Random Forest to estimate medical cost 
+#Age 0-5 Per-person incremental cost per asthma in 2021 dollars (averaged amongst states)
+zerotofivecost_a <- 2463.13
+
 
 
