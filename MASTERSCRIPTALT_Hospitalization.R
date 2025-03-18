@@ -26,7 +26,7 @@ tot_wo_Hosps_rsvPreF <- pop_tot - tot_Hosps_rsvPreF
 #tot_wo_Hosps_Combined <- pop_tot - tot_Hosps_Combined
 
 # calculate rate/prevalence of asthma among those without RSV-LRTI hospitalization
-r_asth_norsv <- prev_no_rsv_func(prev_tot, pop_tot, rr_w, tot_Hosps_no, tot_wo_Hosps_no)
+r_asth_norsv <- prev_no_rsv_func(prev_tot, pop_tot, rr_w_hosp, tot_Hosps_no, tot_wo_Hosps_no)
 
 # number of asthma cases among those without RSV-LRTI hospitalization
 asth_wo_Hosps_no <- asth_no_rsv_func(tot_wo_Hosps_no, r_asth_norsv)
@@ -35,10 +35,10 @@ asth_wo_Hosps_rsvPreF <- asth_no_rsv_func(tot_wo_Hosps_rsvPreF, r_asth_norsv)
 #asth_wo_Hosps_Combined <- asth_no_rsv_func(tot_wo_Hosps_Combined, r_asth_norsv)
 
 # number of asthma cases among those with RSV-LRTI hospitalization
-asth_Hosps_no <- asth_rsv_func(tot_Hosps_no, r_asth_norsv, rr_w)
-asth_Hosps_mAb <- asth_rsv_func(tot_Hosps_mAb, r_asth_norsv, rr_w)
-asth_Hosps_rsvPreF <- asth_rsv_func(tot_Hosps_rsvPreF, r_asth_norsv, rr_w)
-#asth_Hosps_Combined <- asth_rsv_func(tot_Hosps_Combined, r_asth_norsv, rr_w)
+asth_Hosps_no <- asth_rsv_func(tot_Hosps_no, r_asth_norsv, rr_w_hosp)
+asth_Hosps_mAb <- asth_rsv_func(tot_Hosps_mAb, r_asth_norsv, rr_w_hosp)
+asth_Hosps_rsvPreF <- asth_rsv_func(tot_Hosps_rsvPreF, r_asth_norsv, rr_w_hosp)
+#asth_Hosps_Combined <- asth_rsv_func(tot_Hosps_Combined, r_asth_norsv, rr_w_hosp)
 
 # total with asthma
 tot_asth_no <- tot_asth_func(asth_Hosps_no, asth_wo_Hosps_no)
