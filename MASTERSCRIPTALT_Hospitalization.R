@@ -10,20 +10,17 @@ source("asthmafunctionsMali.R")
 
 ############## ADAPTED MALI CODE
 # S.5
-# adjust number of hospitalizations from LRTI while accounting for all-cause mortality out to 6 years
-# Question to Justin/team, do we need to adjust?
 
 tot_Hosps_no <- num_Hosps_no
 tot_Hosps_mAb <- num_Hosps_mAb
-tot_Hosps_rsvPreF <- num_Hosps_mAb
-#tot_Hosps_Combined <-mort_adj_func(num_Hosps_combined, U5 = U5_mort, U9 = U9_mort)
+tot_Hosps_rsvPreF <- num_Hosps_rsvPreF
 
 # number of kids surviving to age 6 without RSV-LRTI hospitalization for each strategy
 # no intervention, mAb, rsvPreF, Combined strategies
-tot_wo_Hosps_no <- pop_tot - tot_Hosps_no
-tot_wo_Hosps_mAb <- pop_tot - tot_Hosps_mAb
-tot_wo_Hosps_rsvPreF <- pop_tot - tot_Hosps_rsvPreF
-#tot_wo_Hosps_Combined <- pop_tot - tot_Hosps_Combined
+tot_wo_Hosps_no <- pop_tot - num_Hosps_no
+tot_wo_Hosps_mAb <- pop_tot - num_Hosps_mAb
+tot_wo_Hosps_rsvPreF <- pop_tot - num_Hosps_rsvPreF
+#tot_wo_Hosps_Combined <- pop_tot - num_Hosps_combined
 
 # calculate rate/prevalence of asthma among those without RSV-LRTI hospitalization
 r_asth_norsv <- prev_no_rsv_func(prev_tot, pop_tot, rr_w_hosp, tot_Hosps_no, tot_wo_Hosps_no)

@@ -5,13 +5,13 @@
 # hospitalizations, and deaths. Used initially to describe cost 
 # effectiveness of intervention strategies and averted RSV at 1 y/o.
 
-hdata <- read.csv("Health_outcomes_USAMichpaper.csv")
-hdatahosp <- read.csv("healthoutcomeshosp.csv")
-hdatahospCI <- read.csv("healthoutcomeshospCI.csv")
-
 library(tidyverse)
+library(readxl)
 
-trials <- 10000
+hdata <- read.csv("Health_outcomes_USAMichpaper.csv")
+hdatahospCI <- read_excel("Healthoutcomes.xlsx")
+
+trials <- 1000
 
 ################################################################################
 #Point estimate work
@@ -46,19 +46,19 @@ RSV_com <- sum(Outpatient_Combined_df[1:12,4:15])
 #Hosps
 # sum cases by intervention type
 # Hospitalizations episodes: Extracting just outpatient episodes of RSV-LRTI
-Hosps_df <- hdatahospCI%>%filter(Metric == "Hospitalizations")
+hosps_df <- hdata%>%filter(Metric == "Hospitalizations")
 
 #Hospitalizations episodes: Delineate RSV-LRTI events by intervention   
-Hosps_no_df <- Hosps_df%>%filter(Intervention == "Natural History")
-Hosps_mAb_df <- Hosps_df%>%filter(Intervention == "Nirsevimab")
-Hosps_rsvPreF_df <- Hosps_df%>%filter(Intervention == "RSVpreF")
-#Hosps_Combined_df <- Hosps_df%>%filter(Intervention == "Combined")
+tot_Hosps_no <- hosps_df%>%filter(Intervention == "no intervention")
+tot_Hosps_mAb <- hosps_df%>%filter(Intervention == "Nirsevimab")
+tot_Hosps_rsvPreF <- hosps_df%>%filter(Intervention == "RSVpreF")
+#tot_Hosps_Combined <- hosps_df%>%filter(Intervention == "Combined")
 
 #Hospitalization episodes: sum point estimates 
-num_Hosps_no <- sum(Hosps_no_df[1:12,4])
-num_Hosps_mAb <- sum(Hosps_mAb_df[1:12,4])
-num_Hosps_rsvPreF <- sum(Hosps_rsvPreF_df[1:12,4])
-#num_Hosps_combined <- sum(Hosps_Combined_df[1:12,4])
+num_Hosps_no <- sum(tot_Hosps_no[1:12,4:15])
+num_Hosps_mAb <- sum(tot_Hosps_mAb[1:12,4:15])
+num_Hosps_rsvPreF <- sum(tot_Hosps_rsvPreF[1:12,4:15])
+#num_Hosps_combined <- sum(tot_Hosps_Combined[1:12,4:15])
 
 #Deaths
 Deaths_df <- hdata%>%filter(Metric == "Deaths")
@@ -84,7 +84,7 @@ ED_rsvPreF_u_df <- ED_u_df%>%filter(Intervention == "RSVpreF")
 ED_Combined_u_df <- ED_u_df%>%filter(Intervention == "Combined")
 
 # Extract just hospitalizations
-hosps_u_df <- hdatahospCI%>%filter(Metric == "Hospitalizations")
+hosps_u_df <- hdatahospCI
 hosps_no_u_df <- hosps_u_df%>%filter(Intervention == "Natural History")
 hosps_mAb_u_df <- hosps_u_df%>%filter(Intervention == "Nirsevimab")
 hosps_rsvPreF_u_df <- hosps_u_df%>%filter(Intervention == "RSVpreF")

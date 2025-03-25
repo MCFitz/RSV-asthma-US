@@ -47,7 +47,7 @@ rr_w_h_hosp <- 3.02 # higher bound
 
 # checking to make sure distance is similar for log-normal
 log(rr_w) - log(rr_w_h)
-log(rr_w) - log(rr_w_h)
+log(rr_w) - log(rr_w_l)
 
 rr_w_sd <- (log(rr_w_h) - log(rr_w_l))/ (1.96*2) # standard deviation
 rr_w_sample <- rnorm(trials, log(rr_w), rr_w_sd) # normal dist of log
@@ -63,5 +63,59 @@ rr_w_u_hosp <- exp(rr_w_sample_hosp) # retransformed uncertainty distribution
 #Age 0-5 Per-person incremental cost per asthma in 2021 dollars (averaged amongst states)
 zerotofivecost_a <- 2463.13
 
+## RSV/LRTI associated risk of additional disease 0-6 mo
+#Pneumonia after RSV bronchiolitis
+pn_05 <- 1.41
+pn_UL_05 <- 1.59
+pn_LL_05 <- 1.24
+#distance - -.120/.128
+rr_pn05_sd <- (log(pn_UL_05) - log(pn_LL_05))/ (1.96*2) # standard deviation
+rr_pn05_sample <- rnorm(trials, log(pn_05), rr_pn05_sd) # normal dist of log
+rr_pn05_u <- exp(rr_pn05_sample) # retransformed uncertainty distribution
 
+#Otitis media after RSV bronchiolitis
+OM_05 <- 1.32
+OM_UL_05 <- 1.38
+OM_LL_05 <- 1.26
+#distance - -.0445/.0465
+rr_OM05_sd <- (log(OM_UL_05) - log(OM_LL_05))/ (1.96*2) # standard deviation
+rr_OM05_sample <- rnorm(trials, log(OM_05), rr_OM05_sd) # normal dist of log
+rr_OM05_u <- exp(rr_OM05_sample) # retransformed uncertainty distribution
+
+#Inappropriate abx fills after RSV bronchiolitis
+ab_05 <- 1.24
+ab_UL_05 <- 1.32
+ab_LL_05 <- 1.16
+#distance - -.0625/.0667
+rr_ab05_sd <- (log(ab_UL_05) - log(ab_LL_05))/ (1.96*2) # standard deviation
+rr_ab05_sample <- rnorm(trials, log(ab_05), rr_ab05_sd) # normal dist of log
+rr_ab05_u <- exp(rr_ab05_sample) # retransformed uncertainty distribution
+
+## RSV/LRTI associated risk of additional disease 0-6 mo
+#Pneumonia after RSV bronchiolitis
+pn_611 <- 1.34
+pn_UL_611 <- 1.59
+pn_LL_611 <- 1.13
+#distance - -.171/.170
+rr_pn611_sd <- (log(pn_UL_611) - log(pn_LL_611))/ (1.96*2) # standard deviation
+rr_pn611_sample <- rnorm(trials, log(pn_611), rr_pn611_sd) # normal dist of log
+rr_pn611_u <- exp(rr_pn611_sample) # retransformed uncertainty distribution
+
+#Otitis media after RSV bronchiolitis
+OM_611 <- 1.26
+OM_UL_611 <- 1.34
+OM_LL_611 <- 1.18
+#distance - -.0616/.0656
+rr_OM611_sd <- (log(OM_UL_611) - log(OM_LL_611))/ (1.96*2) # standard deviation
+rr_OM611_sample <- rnorm(trials, log(OM_611), rr_OM611_sd) # normal dist of log
+rr_OM611_u <- exp(rr_OM611_sample) # retransformed uncertainty distribution
+
+#Inappropriate abx fills after RSV bronchiolitis
+ab_611 <- 1.23
+ab_UL_611 <- 1.34
+ab_LL_611 <- 1.14
+#distance - -.0857/.0760
+rr_ab611_sd <- (log(ab_UL_611) - log(ab_LL_611))/ (1.96*2) # standard deviation
+rr_ab611_sample <- rnorm(trials, log(ab_611), rr_ab611_sd) # normal dist of log
+rr_ab611_u <- exp(rr_ab611_sample) # retransformed uncertainty distribution
 
