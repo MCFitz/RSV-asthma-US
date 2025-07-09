@@ -9,7 +9,7 @@ U9_mort <- .58/1000
 
 # total population birth cohort from Hutton et. al - use of national center 
 # for health statistics data from 2021
-pop_totO <- 3664292
+pop_tot0 <- 3664292
 
 # total population surviving to 6 years of age (calculated from excel using 
 # mortality data). Use of 6 y/o in Mali due to ISAAC survery for RR 
@@ -65,9 +65,9 @@ zerotofivecost_a <- 2463.13
 
 ## RSV/LRTI associated risk of additional disease 0-6 mo
 #Pneumonia after RSV bronchiolitis
-pn_05 <- 1.41
-pn_UL_05 <- 1.59
-pn_LL_05 <- 1.24
+pn_05 <- 1.36
+pn_UL_05 <- 1.54
+pn_LL_05 <- 1.20
 #distance - -.120/.128
 rr_pn05_sd <- (log(pn_UL_05) - log(pn_LL_05))/ (1.96*2) # standard deviation
 rr_pn05_sample <- rnorm(trials, log(pn_05), rr_pn05_sd) # normal dist of log
