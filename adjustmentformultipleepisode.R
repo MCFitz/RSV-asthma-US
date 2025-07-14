@@ -1,5 +1,4 @@
 #Adjusting for repeated visits to the hospital for one episode
-
 #creating uncertainty around ratio of multiple visits per one episode
 episode = 239812
 visit = 363833
@@ -29,8 +28,19 @@ adj_RSV_Hosps_rsvPreF = ratio_multiple_ep*RSV_Hosps_rsvPreF
 adj_RSV_Hosps_Combined = ratio_multiple_ep*RSV_Hosps_Combined
 
 #Uncertainty adjustment
+# Changing syntax
+tot_RSV_no_u <- Hosps_no_df+ED_no_df+OP_no_df
+tot_RSV_mAb_u <- Hosps_mAb_df+ED_mAb_df+OP_mAb_df
+tot_RSV_rsvPreF_u <- Hosps_rsvPreF_df+ED_rsvPreF_df+OP_rsvPreF_df
 
-#LRTI adjustment for ED and OP? -> was the data given to us LRTI or all RSV infection?
+#Adjusting for repeated visits
+tot_RSV_no_u = ratio_multiple_ep_CI*tot_RSV_no_u
+tot_RSV_mAb_u = ratio_multiple_ep_CI*tot_RSV_mAb_u
+tot_RSV_rsvPreF_u = ratio_multiple_ep_CI*tot_RSV_rsvPreF_u
+
+
+#EXTRA WORK
+#LRTI adjustment for ED and OP? -> was the data given to us LRTI or all RSV infection - this was answered and addressed. Original dataset with trials was combined. 
 #For Medically attended outpatient ages 0-5 mo, LRTI assumed to be .65 (65%) of incidence of total RSV incidence (URTI .35 [35%]). For 6-11mo, assumed to be .3 (30%) (URTI .7 [70%])
 #OP_LRTI_PE_05 <- .65 #beta
 #OP_LRTI_UL_05 <- 1.0
@@ -76,15 +86,3 @@ adj_RSV_Hosps_Combined = ratio_multiple_ep*RSV_Hosps_Combined
 #ED_no_df <- rowSums(merge(ED_no_u_df[3:8]*.65,ED_no_u_df[9:14]*.5))
 #ED_mAb_df <- rowSums(merge(ED_mAb_u_df[3:8]*.65,ED_mAb_u_df[9:14]*.5))
 #ED_rsvPreF_df <- rowSums(merge(ED_rsvPreF_u_df[3:8]*.65,ED_rsvPreF_u_df[9:14]*.5))
-
-# Changing syntax
-tot_RSV_no_u <- Hosps_no_df+ED_no_df+OP_no_df
-tot_RSV_mAb_u <- Hosps_mAb_df+ED_mAb_df+OP_mAb_df
-tot_RSV_rsvPreF_u <- Hosps_rsvPreF_df+ED_rsvPreF_df+OP_rsvPreF_df
-
-#Adjusting for repeated visits
-tot_RSV_no_u = ratio_multiple_ep_CI*tot_RSV_no_u
-tot_RSV_mAb_u = ratio_multiple_ep_CI*tot_RSV_mAb_u
-tot_RSV_rsvPreF_u = ratio_multiple_ep_CI*tot_RSV_rsvPreF_u
-
-

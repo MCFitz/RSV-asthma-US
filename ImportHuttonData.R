@@ -64,19 +64,19 @@ RSV_Hosps_mAb <- sum(Hosps_mAb_df[1:12,4:15])
 RSV_Hosps_rsvPreF <- sum(Hosps_rsvPreF_df[1:12,4:15])
 RSV_Hosps_Combined <- sum(Hosps_Combined_df[1:12,4:15])
 
-#Death alone extraction
+#Death alone extraction - From OLD/Original DF
 #Death episodes alone: sum point estimates across years and ages
-RSV_Deaths_df <- hdata%>%filter(Metric == "Deaths")
-RSV_Deaths_no_df <- Deaths_df%>%filter(Intervention == "no intervention")
-RSV_Deaths_mAb_df <- Deaths_df%>%filter(Intervention == "Nirsevimab")
-RSV_Deaths_rsvPreF_df <- Deaths_df%>%filter(Intervention == "RSVpreF")
-RSV_Deaths_Combined_df <- Deaths_df%>%filter(Intervention == "Combined")
+#RSV_Deaths_df <- hdata%>%filter(Metric == "Deaths")
+#RSV_Deaths_no_df <- Deaths_df%>%filter(Intervention == "no intervention")
+#RSV_Deaths_mAb_df <- Deaths_df%>%filter(Intervention == "Nirsevimab")
+#RSV_Deaths_rsvPreF_df <- Deaths_df%>%filter(Intervention == "RSVpreF")
+#RSV_Deaths_Combined_df <- Deaths_df%>%filter(Intervention == "Combined")
 
-#deaths episodes alone: sum point estimates across years and ages
-RSV_Deaths_no <- sum(RSV_Deaths_no_df[1:12,4:15])
-RSV_Deaths_mAb <- sum(RSV_Deaths_mAb_df[1:12,4:15])
-RSV_Deaths_rsvPreF <- sum(RSV_Deaths_rsvPreF_df[1:12,4:15])
-RSV_Deaths_Combined <- sum(RSV_Deaths_Combined_df[1:12,4:15])
+#deaths episodes alone: sum point estimates across years and ages - From OLD/Original DF
+#RSV_Deaths_no <- sum(RSV_Deaths_no_df[1:12,4:15])
+#RSV_Deaths_mAb <- sum(RSV_Deaths_mAb_df[1:12,4:15])
+#RSV_Deaths_rsvPreF <- sum(RSV_Deaths_rsvPreF_df[1:12,4:15])
+#RSV_Deaths_Combined <- sum(RSV_Deaths_Combined_df[1:12,4:15])
 
 ################################################################################
 #Uncertainty work - QUESTION: Do these represent just LRTI or LRTI+URTI?

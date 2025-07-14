@@ -8,10 +8,12 @@ source("PARAMS_asthma.R")
 source("asthmafunctionsMali.R")
 source("adjustmentformultipleepisode.R")
 
+library(tidyverse)
+
 # number of kids without RSV-LRTI associated hosp for each strategy
-tot_wo_RSV_no_u <- pop_tot - (Hosps_no_df+ED_no_df+OP_no_df)
-tot_wo_RSV_mAb_u <- pop_tot - (Hosps_mAb_df+ED_mAb_df+OP_mAb_df)
-tot_wo_RSV_rsvPreF_u <- pop_tot - (Hosps_rsvPreF_df+ED_rsvPreF_df+OP_rsvPreF_df)
+tot_wo_RSV_no_u <- pop_tot - (tot_RSV_no_u)
+tot_wo_RSV_mAb_u <- pop_tot - (tot_RSV_mAb_u)
+tot_wo_RSV_rsvPreF_u <- pop_tot - (tot_RSV_rsvPreF_u)
 
 # calculate rate/prevalence of asthma among those without RSV-LRTI hosp
 r_asth_norsv_u <- prev_no_rsv_func(prev_tot_u, pop_tot0, rr_w_u, tot_RSV_no_u, tot_wo_RSV_no_u)
