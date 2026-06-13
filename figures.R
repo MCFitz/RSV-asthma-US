@@ -435,206 +435,302 @@ ggsave(
 # Population Attributable Fraction (PAF)
 # Childhood wheeze/asthma risk factors
 # AJRCCM-style forest plot
-# Aligned label + forest + right-table version
 # -----------------------------
 
 library(ggplot2)
 library(dplyr)
 library(patchwork)
-library(ggtext)
 
 # -----------------------------
 # DATA
 # -----------------------------
 
 df <- data.frame(
-  RiskFactor = c(
-    "RSV LRTI",
-    "Antibiotic use",
-    "Secondhand smoke exposure",
-    "Early-life allergen sensitization",
-    "Childhood obesity",
-    "Prenatal smoking",
-    "Traffic-related air pollution",
-    "Indoor mold exposure"
+  RiskFactor = factor(
+    c(
+      "RSV LRTI",
+      "Secondhand smoke exposure",
+      "Early-life allergen sensitization",
+      "Childhood overweight/obesity",
+      "Prenatal smoking",
+      "Traffic-related air pollution",
+      "Indoor mold exposure"
+    ),
+    levels = rev(c(
+      "RSV LRTI",
+      "Secondhand smoke exposure",
+      "Early-life allergen sensitization",
+      "Childhood overweight/obesity",
+      "Prenatal smoking",
+      "Traffic-related air pollution",
+      "Indoor mold exposure"
+    ))
   ),
+  
   ExposureWindow = c(
     "Infancy",
-    "Infancy",
-    "Late childhood",
-    "Early childhood",
-    "Early/late childhood",
+    "Postnatal",
+    "Infancy–early\nchildhood",
+    "Childhood",
     "Prenatal",
     "Early childhood",
     "Early childhood"
   ),
+  
   RR_CI = c(
-    "2.2 (1.3–3.6)",
-    "1.3 (1.1-1.4)",
-    "1.3 (1.1-1.4)",
+    "3.8 (3.2–4.6)",
     "2.8 (2.1–3.9)",
-    "1.5 (1.4–1.6)",
+    "1.1 (0.9–1.3)",
+    "1.3 (1.2–1.4)",
     "1.9 (1.4–2.5)",
     "1.1 (1.0–1.3)",
     "1.1 (0.9–1.3)"
   ),
-  Prevalence = c(20, 66, 41, 6, 9, 8, 4, 4),
-  PAF = c(9.1, 15.1, 11.5, 9.5, 4.1, 6.7, 0.5, 0.4),
-  LowerCI = c(2.5, 7.3, 8.5, 6.0, 3.2, 2.9, 0.0, -0.4),
-  UpperCI = c(19.2, 22.1, 14.6, 14.4, 5.1, 11.4, 1.7, 1.4)
-)
-
-# -----------------------------
-# ORDERING
-# RSV first; remaining rows sorted by descending PAF
-# -----------------------------
-
-df <- bind_rows(
-  df %>% filter(RiskFactor == "RSV LRTI"),
-  df %>% filter(RiskFactor != "RSV LRTI") %>% arrange(desc(PAF))
-) %>%
-  mutate(
-    row = rev(seq_len(n())),
-    RiskLabel = ifelse(RiskFactor == "RSV LRTI", "<b>RSV LRTI</b>", RiskFactor),
-    Prev = paste0(Prevalence, "%")
+  
+  Prevalence = c(
+    20,
+    41,
+    6,
+    9,
+    8,
+    4,
+    4
+  ),
+  
+  PAF = c(
+    9.1,
+    11.5,
+    9.5,
+    4.1,
+    6.7,
+    0.5,
+    0.4
+  ),
+  
+  LowerCI = c(
+    2.5,
+    8.5,
+    6.0,
+    3.2,
+    2.9,
+    0.0,
+    -0.4
+  ),
+  
+  UpperCI = c(
+    19.2,
+    14.6,
+    14.4,
+    5.9,
+    11.4,
+    1.7,
+    1.4
   )
-
-n_rows <- nrow(df)
-y_limits <- c(0.5, n_rows + 0.75)
-y_header <- n_rows + 0.45
-separator_y <- n_rows - 0.5
-
-# -----------------------------
-# COMMON THEME SETTINGS
-# -----------------------------
-
-base_font <- "Arial"
-body_size <- 8
-header_size <- 8.5
-blue <- "#003B8E"
-
-# -----------------------------
-# LEFT LABEL PANEL
-# -----------------------------
-
-label_plot <- ggplot(df, aes(y = row)) +
-  geom_hline(yintercept = separator_y, colour = "grey45", linewidth = 0.6) +
-  ggtext::geom_richtext(
-    aes(x = 1, label = RiskLabel),
-    hjust = 1,
-    vjust = 0.5,
-    fill = NA,
-    label.color = NA,
-    label.padding = grid::unit(rep(0, 4), "pt"),
-    family = base_font,
-    size = body_size / ggplot2::.pt,
-    lineheight = 0.95
-  ) +
-  scale_y_continuous(limits = y_limits, expand = c(0, 0)) +
-  coord_cartesian(xlim = c(0, 1), clip = "off") +
-  theme_void(base_family = base_font) +
-  theme(plot.margin = margin(t = 15, r = 4, b = 22, l = 8))
+)
 
 # -----------------------------
 # FOREST PLOT PANEL
 # -----------------------------
 
-forest_plot <- ggplot(df, aes(x = PAF, y = row)) +
-  geom_vline(xintercept = 0, linetype = "dashed", colour = "grey50", linewidth = 0.7) +
-  geom_hline(yintercept = separator_y, colour = "grey45", linewidth = 0.6) +
+forest_plot <- ggplot(
+  df,
+  aes(
+    x = PAF,
+    y = RiskFactor
+  )
+) +
+  
+  # Reference line
+  geom_vline(
+    xintercept = 0,
+    linetype = "dashed",
+    colour = "grey50",
+    linewidth = 0.7
+  ) +
+  
+  # Confidence intervals
   geom_errorbar(
-    aes(xmin = LowerCI, xmax = UpperCI),
+    aes(
+      xmin = LowerCI,
+      xmax = UpperCI
+    ),
     orientation = "y",
-    height = 0.16,
-    linewidth = 0.85,
-    colour = blue
+    height = 0.18,
+    linewidth = 0.9,
+    colour = "#003B8E"
   ) +
+  
+  # Points
   geom_point(
-    aes(size = ifelse(RiskFactor == "RSV LRTI", 3.8, 3.0)),
-    colour = blue
+    size = 3,
+    colour = "#003B8E"
   ) +
-  scale_size_identity() +
-  scale_y_continuous(limits = y_limits, expand = c(0, 0)) +
+  
   scale_x_continuous(
     limits = c(-2, 25),
-    breaks = seq(0, 25, 5),
+    breaks = seq(0, 50, 5),
     expand = expansion(mult = c(0.01, 0.02))
   ) +
-  labs(x = "Population attributable fraction (%)", y = NULL) +
-  theme_minimal(base_family = base_font, base_size = 9) +
+  
+  labs(
+    x = "Population attributable fraction (%)",
+    y = NULL
+  ) +
+  
+  theme_minimal(
+    base_family = "Arial",
+    base_size = 9
+  ) +
+  
   theme(
-    panel.grid.major.x = element_line(colour = "grey86", linewidth = 0.5),
+    # Vertical gridlines like published figure
+    panel.grid.major.x = element_line(
+      colour = "grey85",
+      linewidth = 0.5
+    ),
+    
     panel.grid.major.y = element_blank(),
     panel.grid.minor = element_blank(),
-    axis.text.y = element_blank(),
-    axis.ticks.y = element_blank(),
+    
     axis.line.y = element_blank(),
-    axis.text.x = element_text(size = 8),
-    axis.title.x = element_text(size = 9, margin = margin(t = 7)),
-    plot.margin = margin(t = 15, r = 8, b = 16, l = 0)
+    axis.ticks.y = element_blank(),
+    
+    axis.text.y = element_text(
+      size = 7.5,
+      hjust = 1
+    ),
+    
+    axis.text.x = element_text(
+      size = 8
+    ),
+    
+    axis.title.x = element_text(
+      size = 9,
+      margin = margin(t = 8)
+    ),
+    
+    plot.margin = margin(
+      t = 20,
+      r = 10,
+      b = 20,
+      l = 10
+    )
   )
 
 # -----------------------------
-# RIGHT TABLE PANEL
-# Use a wider x-range and fixed x positions so columns do not bunch together.
+# TABLE PANEL
 # -----------------------------
 
-x_exp <- 0.0
-x_rr <- 4.0
-x_prev <- 7.7
+table_df <- data.frame(
+  y = seq(length(df$RiskFactor), 1),
+  Exposure = df$ExposureWindow,
+  RR = df$RR_CI,
+  Prev = paste0(df$Prevalence, "%")
+)
 
-right_table_plot <- ggplot(df, aes(y = row)) +
-  geom_hline(yintercept = separator_y, colour = "grey45", linewidth = 0.6) +
+table_plot <- ggplot(table_df) +
+  
+  # Exposure window
+  
   geom_text(
-    aes(x = x_exp, label = ExposureWindow),
-    hjust = 0,
-    vjust = 0.5,
-    family = base_font,
-    size = body_size / ggplot2::.pt,
-    lineheight = 0.95
+    aes(
+      x = 1.5,
+      y = y,
+      label = Exposure
+    ),
+    family = "Arial",
+    hjust = 0.5,
+    size = 2.0
   ) +
+  
+  # RR
+  
   geom_text(
-    aes(x = x_rr, label = RR_CI),
-    hjust = 0,
-    vjust = 0.5,
-    family = base_font,
-    size = body_size / ggplot2::.pt,
-    lineheight = 0.95
+    aes(
+      x = 5.5,
+      y = y,
+      label = RR
+    ),
+    family = "Arial",
+    hjust = 0.5,
+    size = 2.0
   ) +
+  
+  # Prevalence
+  
   geom_text(
-    aes(x = x_prev, label = Prev),
-    hjust = 0,
-    vjust = 0.5,
-    family = base_font,
-    size = body_size / ggplot2::.pt,
-    lineheight = 0.95
+    aes(
+      x = 9.5,
+      y = y,
+      label = Prev
+    ),
+    family = "Arial",
+    hjust = 0.5,
+    size = 2.0
   ) +
-  annotate(
-    "text", x = x_exp, y = y_header, label = "Exposure window",
-    hjust = 0, vjust = 0, fontface = "bold", family = base_font,
-    size = header_size / ggplot2::.pt
-  ) +
-  annotate(
-    "text", x = x_rr, y = y_header, label = "RR (95% CI)",
-    hjust = 0, vjust = 0, fontface = "bold", family = base_font,
-    size = header_size / ggplot2::.pt
-  ) +
-  annotate(
-    "text", x = x_prev, y = y_header, label = "Prevalence",
-    hjust = 0, vjust = 0, fontface = "bold", family = base_font,
-    size = header_size / ggplot2::.pt
-  ) +
-  scale_y_continuous(limits = y_limits, expand = c(0, 0)) +
-  coord_cartesian(xlim = c(-0.05, 10.2), clip = "off") +
-  theme_void(base_family = base_font) +
-  theme(plot.margin = margin(t = 15, r = 12, b = 22, l = 10))
-
-# -----------------------------
-# COMBINE
+  
+  # -----------------------------
+# HEADERS
 # -----------------------------
 
-final_plot <- label_plot + forest_plot + right_table_plot +
-  plot_layout(widths = c(1.45, 2.35, 2.65))
+annotate(
+  "text",
+  x = 1.5,
+  y = 8,
+  label = "Exposure\nwindow",
+  fontface = "bold",
+  family = "Arial",
+  hjust = 0.5,
+  size = 2.4
+) +
+  
+  annotate(
+    "text",
+    x = 5.5,
+    y = 8,
+    label = "RR (95% CI)",
+    fontface = "bold",
+    family = "Arial",
+    hjust = 0.5,
+    size = 2.4
+  ) +
+  
+  annotate(
+    "text",
+    x = 9.5,
+    y = 8,
+    label = "Prevalence",
+    fontface = "bold",
+    family = "Arial",
+    hjust = 0.5,
+    size = 2.4
+  ) +
+  
+  coord_cartesian(
+    xlim = c(0, 10.5),
+    ylim = c(0.5, 8.4),
+    clip = "off"
+  ) +
+  
+  theme_void() +
+  
+  theme(
+    plot.margin = margin(
+      t = 20,
+      r = 20,
+      b = 20,
+      l = 20
+    )
+  )
+
+# -----------------------------
+# COMBINE PANELS
+# -----------------------------
+
+final_plot <- forest_plot + table_plot +
+  plot_layout(
+    widths = c(1.9, 1.1)
+  )
 
 # -----------------------------
 # DISPLAY
@@ -646,8 +742,10 @@ final_plot
 # EXPORTS
 # -----------------------------
 
+# PDF (vector)
+
 ggsave(
-  filename = "Figure2_PAF_forestplot_aligned_fixed.pdf",
+  filename = "Figure2_PAF_forestplot.pdf",
   plot = final_plot,
   width = 200,
   height = 120,
@@ -656,8 +754,10 @@ ggsave(
   bg = "white"
 )
 
+# TIFF (journal submission)
+
 ggsave(
-  filename = "Figure2_PAF_forestplot_aligned_fixed.tiff",
+  filename = "Figure2_PAF_forestplot.tiff",
   plot = final_plot,
   width = 200,
   height = 120,
@@ -666,8 +766,6 @@ ggsave(
   compression = "lzw",
   bg = "white"
 )
-
-#Notes: Needs updated PAF once finalized from team. Needs RR to be converted to OR
 
 # -----------------------------
 ## LIVING ABSTRACT - Figure 3
@@ -1043,4 +1141,236 @@ p1 + p2
 #         plot.title = element_text(face = "bold",family = "Arial",hjust = 0.5)
 #  )
 
+# -----------------------------
+# FIGURE 2
+# Population Attributable Fraction (PAF)
+# Childhood wheeze/asthma risk factors
+# AJRCCM-style forest plot
+# Aligned label + forest + right-table version
+# -----------------------------
 
+library(ggplot2)
+library(dplyr)
+library(patchwork)
+library(ggtext)
+
+# -----------------------------
+# DATA
+# -----------------------------
+
+df <- data.frame(
+  RiskFactor = c(
+    "RSV LRTI",
+    "Secondhand smoke exposure",
+    "Early-life allergen sensitization",
+    "Childhood overweight/obesity",
+    "Prenatal smoking",
+    "Traffic-related air pollution",
+    "Indoor mold exposure"
+  ),
+  ExposureWindow = c(
+    "Infancy",
+    "Postnatal",
+    "Infancy–early\nchildhood",
+    "Childhood",
+    "Prenatal",
+    "Early childhood",
+    "Early childhood"
+  ),
+  RR_CI = c(
+    "3.8 (3.2–4.6)",
+    "2.8 (2.1–3.9)",
+    "1.1 (0.9–1.3)",
+    "1.3 (1.2–1.4)",
+    "1.9 (1.4–2.5)",
+    "1.1 (1.0–1.3)",
+    "1.1 (0.9–1.3)"
+  ),
+  Prevalence = c(20, 41, 6, 9, 8, 4, 4),
+  PAF = c(9.1, 11.5, 9.5, 4.1, 6.7, 0.5, 0.4),
+  LowerCI = c(2.5, 8.5, 6.0, 3.2, 2.9, 0.0, -0.4),
+  UpperCI = c(19.2, 14.6, 14.4, 5.9, 11.4, 1.7, 1.4)
+)
+
+# -----------------------------
+# ORDERING
+# RSV first; remaining rows sorted by descending PAF
+# -----------------------------
+
+df <- bind_rows(
+  df %>% filter(RiskFactor == "RSV LRTI"),
+  df %>% filter(RiskFactor != "RSV LRTI") %>% arrange(desc(PAF))
+) %>%
+  mutate(
+    row = rev(seq_len(n())),
+    RiskLabel = ifelse(RiskFactor == "RSV LRTI", "<b>RSV LRTI</b>", RiskFactor),
+    Prev = paste0(Prevalence, "%")
+  )
+
+n_rows <- nrow(df)
+y_limits <- c(0.5, n_rows + 0.75)
+y_header <- n_rows + 0.45
+separator_y <- n_rows - 0.5
+
+# -----------------------------
+# COMMON THEME SETTINGS
+# -----------------------------
+
+base_font <- "Arial"
+body_size <- 8
+header_size <- 8.5
+blue <- "#003B8E"
+
+# -----------------------------
+# LEFT LABEL PANEL
+# -----------------------------
+
+label_plot <- ggplot(df, aes(y = row)) +
+  geom_hline(yintercept = separator_y, colour = "grey45", linewidth = 0.6) +
+  ggtext::geom_richtext(
+    aes(x = 1, label = RiskLabel),
+    hjust = 1,
+    vjust = 0.5,
+    fill = NA,
+    label.color = NA,
+    label.padding = grid::unit(rep(0, 4), "pt"),
+    family = base_font,
+    size = body_size / ggplot2::.pt,
+    lineheight = 0.95
+  ) +
+  scale_y_continuous(limits = y_limits, expand = c(0, 0)) +
+  coord_cartesian(xlim = c(0, 1), clip = "off") +
+  theme_void(base_family = base_font) +
+  theme(plot.margin = margin(t = 15, r = 4, b = 22, l = 8))
+
+# -----------------------------
+# FOREST PLOT PANEL
+# -----------------------------
+
+forest_plot <- ggplot(df, aes(x = PAF, y = row)) +
+  geom_vline(xintercept = 0, linetype = "dashed", colour = "grey50", linewidth = 0.7) +
+  geom_hline(yintercept = separator_y, colour = "grey45", linewidth = 0.6) +
+  geom_errorbar(
+    aes(xmin = LowerCI, xmax = UpperCI),
+    orientation = "y",
+    height = 0.16,
+    linewidth = 0.85,
+    colour = blue
+  ) +
+  geom_point(
+    aes(size = ifelse(RiskFactor == "RSV LRTI", 3.8, 3.0)),
+    colour = blue
+  ) +
+  scale_size_identity() +
+  scale_y_continuous(limits = y_limits, expand = c(0, 0)) +
+  scale_x_continuous(
+    limits = c(-2, 25),
+    breaks = seq(0, 25, 5),
+    expand = expansion(mult = c(0.01, 0.02))
+  ) +
+  labs(x = "Population attributable fraction (%)", y = NULL) +
+  theme_minimal(base_family = base_font, base_size = 9) +
+  theme(
+    panel.grid.major.x = element_line(colour = "grey86", linewidth = 0.5),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor = element_blank(),
+    axis.text.y = element_blank(),
+    axis.ticks.y = element_blank(),
+    axis.line.y = element_blank(),
+    axis.text.x = element_text(size = 8),
+    axis.title.x = element_text(size = 9, margin = margin(t = 7)),
+    plot.margin = margin(t = 15, r = 8, b = 16, l = 0)
+  )
+
+# -----------------------------
+# RIGHT TABLE PANEL
+# Use a wider x-range and fixed x positions so columns do not bunch together.
+# -----------------------------
+
+x_exp <- 0.0
+x_rr <- 4.0
+x_prev <- 7.7
+
+right_table_plot <- ggplot(df, aes(y = row)) +
+  geom_hline(yintercept = separator_y, colour = "grey45", linewidth = 0.6) +
+  geom_text(
+    aes(x = x_exp, label = ExposureWindow),
+    hjust = 0,
+    vjust = 0.5,
+    family = base_font,
+    size = body_size / ggplot2::.pt,
+    lineheight = 0.95
+  ) +
+  geom_text(
+    aes(x = x_rr, label = RR_CI),
+    hjust = 0,
+    vjust = 0.5,
+    family = base_font,
+    size = body_size / ggplot2::.pt,
+    lineheight = 0.95
+  ) +
+  geom_text(
+    aes(x = x_prev, label = Prev),
+    hjust = 0,
+    vjust = 0.5,
+    family = base_font,
+    size = body_size / ggplot2::.pt,
+    lineheight = 0.95
+  ) +
+  annotate(
+    "text", x = x_exp, y = y_header, label = "Exposure window",
+    hjust = 0, vjust = 0, fontface = "bold", family = base_font,
+    size = header_size / ggplot2::.pt
+  ) +
+  annotate(
+    "text", x = x_rr, y = y_header, label = "RR (95% CI)",
+    hjust = 0, vjust = 0, fontface = "bold", family = base_font,
+    size = header_size / ggplot2::.pt
+  ) +
+  annotate(
+    "text", x = x_prev, y = y_header, label = "Prevalence",
+    hjust = 0, vjust = 0, fontface = "bold", family = base_font,
+    size = header_size / ggplot2::.pt
+  ) +
+  scale_y_continuous(limits = y_limits, expand = c(0, 0)) +
+  coord_cartesian(xlim = c(-0.05, 10.2), clip = "off") +
+  theme_void(base_family = base_font) +
+  theme(plot.margin = margin(t = 15, r = 12, b = 22, l = 10))
+
+# -----------------------------
+# COMBINE
+# -----------------------------
+
+final_plot <- label_plot + forest_plot + right_table_plot +
+  plot_layout(widths = c(1.45, 2.35, 2.65))
+
+# -----------------------------
+# DISPLAY
+# -----------------------------
+
+final_plot
+
+# -----------------------------
+# EXPORTS
+# -----------------------------
+
+ggsave(
+  filename = "Figure2_PAF_forestplot_aligned_fixed.pdf",
+  plot = final_plot,
+  width = 200,
+  height = 120,
+  units = "mm",
+  device = cairo_pdf,
+  bg = "white"
+)
+
+ggsave(
+  filename = "Figure2_PAF_forestplot_aligned_fixed.tiff",
+  plot = final_plot,
+  width = 200,
+  height = 120,
+  units = "mm",
+  dpi = 600,
+  compression = "lzw",
+  bg = "white"
+)

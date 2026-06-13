@@ -10,6 +10,90 @@ source("adjustmentformultipleepisode.R")
 library(tidyverse)
 
 # -----------------------------
+# 1st year of life - changing r_asth_norsv_u_1st variable
+# -----------------------------
+
+#Total RSV-LRTI cases over 1st year: sum point estimates for outcomes
+num_OP_ED_Hosp_no_1st <- OP_no_PE_1st_a+ED_no_PE_1st_a+Hosps_no_PE_1st_a
+num_OP_ED_Hosp_mAb_1st <- OP_mAb_PE_1st_a+ED_mAb_PE_1st_a+Hosps_mAb_PE_1st_a
+num_OP_ED_Hosp_rsvPreF_1st <- OP_rsvPreF_PE_1st_a+ED_rsvPreF_PE_1st_a+Hosps_rsvPreF_PE_1st_a
+
+# number of kids without RSV-LRTI for each strategy
+# no intervention, mAb, rsvPreF, Combined strategies
+tot_wo_OP_no_1st <- pop_tot - num_OP_ED_Hosp_no_1st
+tot_wo_OP_mAb_1st <- pop_tot - num_OP_ED_Hosp_mAb_1st
+tot_wo_OP_rsvPreF_1st <- pop_tot - num_OP_ED_Hosp_rsvPreF_1st
+
+# calculate rate/prevalence of asthma among those without RSV-LRTI
+r_asth_norsv_1st <- prev_no_rsv_func(prev_tot, pop_tot, aOR_w, num_OP_ED_Hosp_no_1st, tot_wo_OP_no_1st)
+
+#We can think about using this alternative adjusted OR if we really want 1st year of life data, will also need to consider doing the below with the r_asth_norsv_u variable
+RR_w_1st_adj <- aOR_w/((1-(r_asth_norsv_1st))+(r_asth_norsv_1st*aOR_w))
+
+# ----------------------------- #
+# Using aRR from OR
+# ----------------------------- #
+
+# calculate rate/prevalence of asthma among those without RSV-LRTI
+r_asth_norsv_1st_adj <- prev_no_rsv_func(prev_tot, pop_tot, RR_w_1st_adj, num_OP_ED_Hosp_no_1st, tot_wo_OP_no_1st)
+
+# number of asthma cases among those without RSV-LRTI
+asth_wo_OP_no_1st_adj <- asth_no_rsv_func(tot_wo_OP_no_1st, r_asth_norsv_1st_adj)
+asth_wo_OP_mAb_1st_adj <- asth_no_rsv_func(tot_wo_OP_mAb_1st, r_asth_norsv_1st_adj)
+asth_wo_OP_rsvPreF_1st_adj <- asth_no_rsv_func(tot_wo_OP_rsvPreF_1st, r_asth_norsv_1st_adj)
+
+# number of asthma cases among those with RSV-LRTI
+asth_OP_no_1st_adj <- asth_rsv_func(num_OP_ED_Hosp_no_1st, r_asth_norsv_1st_adj, RR_w_1st_adj)
+asth_OP_mAb_1st_adj <- asth_rsv_func(num_OP_ED_Hosp_mAb_1st, r_asth_norsv_1st_adj, RR_w_1st_adj)
+asth_OP_rsvPreF_1st_adj <- asth_rsv_func(num_OP_ED_Hosp_rsvPreF_1st, r_asth_norsv_1st_adj, RR_w_1st_adj)
+
+# total with asthma
+tot_asth_no_1st_adj <- tot_asth_func(asth_OP_no_1st_adj, asth_wo_OP_no_1st_adj)
+tot_asth_mAb_1st_adj <- tot_asth_func(asth_OP_mAb_1st_adj, asth_wo_OP_mAb_1st_adj)
+tot_asth_rsvPreF_1st_adj <-tot_asth_func(asth_OP_rsvPreF_1st_adj, asth_wo_OP_rsvPreF_1st_adj)
+
+# total asthma per 100,000 population
+tot_asth_no_pr_1st_adj <- tot_asth_no_1st_adj / pop_tot * 100000
+tot_asth_mAb_pr_1st_adj <- tot_asth_mAb_1st_adj / pop_tot * 100000
+tot_asth_rsvPreF_pr_1st_adj <- tot_asth_rsvPreF_1st_adj / pop_tot * 100000
+
+# total asthma percent decrease from status quo
+tot_asth_mAb_pd_1st_adj <- (tot_asth_no_1st_adj - tot_asth_mAb_1st_adj) / tot_asth_no_1st_adj * 100
+tot_asth_rsvPreF_pd_1st_adj <- (tot_asth_no_1st_adj - tot_asth_rsvPreF_1st_adj) / tot_asth_no_1st_adj * 100
+
+# number of asthma cases among those with RSV-LRTI had they not been infected
+asth_null_no_1st_adj <- asth_rsv_null_func(num_OP_ED_Hosp_no_1st, r_asth_norsv_1st_adj)
+asth_null_mAb_1st_adj <- asth_rsv_null_func(num_OP_ED_Hosp_mAb_1st, r_asth_norsv_1st_adj)
+asth_null_rsvPreF_1st_adj <-asth_rsv_null_func(num_OP_ED_Hosp_rsvPreF_1st, r_asth_norsv_1st_adj)
+
+# RSV-LRTI attributable asthma
+att_no_1st_adj <- asth_rsv_att_func(asth_OP_no_1st_adj, asth_null_no_1st_adj)
+att_mAb_1st_adj <- asth_rsv_att_func(asth_OP_mAb_1st_adj, asth_null_mAb_1st_adj)
+att_rsvPreF_1st_adj <-asth_rsv_att_func(asth_OP_rsvPreF_1st_adj, asth_null_rsvPreF_1st_adj)
+
+# total recurrent wheeze/asthma, all RSV LRTI or ED encounter  prevented
+asth_all_RSV_prev_1st_adj <- asth_null_no_1st_adj + asth_wo_OP_no_1st_adj
+
+# RSV-LRTI attributable asthma per 100,000 population
+att_no_pr_1st_adj <- att_no_1st_adj / pop_tot * 100000
+att_mAb_pr_1st_adj <- att_mAb_1st_adj / pop_tot * 100000
+att_rsvPreF_pr_1st_adj <- att_rsvPreF_1st_adj / pop_tot * 100000
+
+# RSV-LRTI attributable asthma percent decrease from status quo
+att_mAb_pd_1st_adj <- (att_no_1st_adj - att_mAb_1st_adj) / att_no_1st_adj * 100
+att_rsvPreF_pd_1st_adj <- (att_no_1st_adj - att_rsvPreF_1st_adj) / att_no_1st_adj * 100
+#att_Combined_pd <- (att_no - att_Combined) / att_no * 100
+
+# Total recurrent wheeze/ asthma if all RSV-LRTI were prevented
+# equal to the total population * the baseline rate of asthma among those w/o RSV
+all_rsv_prev_1st_adj <- asth_no_rsv_func(pop_tot, r_asth_norsv_1st_adj)
+all_rsv_prev_pr_1st_adj <- all_rsv_prev_1st_adj / pop_tot * 100000
+all_rsv_prev_pd_1st_adj <- (tot_asth_no_1st_adj - all_rsv_prev_1st_adj) / tot_asth_no_1st_adj * 100
+
+#PAF
+((num_OP_ED_Hosp_no_1st/pop_tot)*(RR_w_1st_adj-1))/(((num_OP_ED_Hosp_no_1st/pop_tot)*(RR_w_1st_adj-1)+1))
+
+# -----------------------------
 # 1st and 2nd year of life point estimate data
 # -----------------------------
 
@@ -51,10 +135,10 @@ tot_asth_no_adj <- tot_asth_func(asth_OP_no_adj, asth_wo_OP_no_adj)
 tot_asth_mAb_adj <- tot_asth_func(asth_OP_mAb_adj, asth_wo_OP_mAb_adj)
 tot_asth_rsvPreF_adj <-tot_asth_func(asth_OP_rsvPreF_adj, asth_wo_OP_rsvPreF_adj)
 
-# total asthma per 10,000 population
-tot_asth_no_pr_adj <- tot_asth_no_adj / pop_tot * 10000
-tot_asth_mAb_pr_adj <- tot_asth_mAb_adj / pop_tot * 10000
-tot_asth_rsvPreF_pr_adj <- tot_asth_rsvPreF_adj / pop_tot * 10000
+# total asthma per 100,000 population
+tot_asth_no_pr_adj <- tot_asth_no_adj / pop_tot * 100000
+tot_asth_mAb_pr_adj <- tot_asth_mAb_adj / pop_tot * 100000
+tot_asth_rsvPreF_pr_adj <- tot_asth_rsvPreF_adj / pop_tot * 100000
 
 # total asthma percent decrease from status quo
 tot_asth_mAb_pd_adj <- (tot_asth_no_adj - tot_asth_mAb_adj) / tot_asth_no_adj * 100
@@ -73,10 +157,10 @@ att_rsvPreF_adj <-asth_rsv_att_func(asth_OP_rsvPreF_adj, asth_null_rsvPreF_adj)
 # total recurrent wheeze/asthma, all RSV LRTI or ED encounter  prevented
 asth_all_RSV_prev_adj <- asth_null_no_adj + asth_wo_OP_no_adj
 
-# RSV-LRTI attributable asthma per 10,000 population
-att_no_pr_adj <- att_no_adj / pop_tot * 10000
-att_mAb_pr_adj <- att_mAb_adj / pop_tot * 10000
-att_rsvPreF_pr_adj <- att_rsvPreF_adj / pop_tot * 10000
+# RSV-LRTI attributable asthma per 100,000 population
+att_no_pr_adj <- att_no_adj / pop_tot * 100000
+att_mAb_pr_adj <- att_mAb_adj / pop_tot * 100000
+att_rsvPreF_pr_adj <- att_rsvPreF_adj / pop_tot * 100000
 
 # RSV-LRTI attributable asthma percent decrease from status quo
 att_mAb_pd_adj <- (att_no_adj - att_mAb_adj) / att_no_adj * 100
@@ -85,93 +169,11 @@ att_rsvPreF_pd_adj <- (att_no_adj - att_rsvPreF_adj) / att_no_adj * 100
 # Total recurrent wheeze/ asthma if all RSV-LRTI were prevented
 # equal to the total population * the baseline rate of asthma among those w/o RSV
 all_rsv_prev_adj <- asth_no_rsv_func(pop_tot, r_asth_norsv_adj)
-all_rsv_prev_pr_adj <- all_rsv_prev_adj / pop_tot * 10000
+all_rsv_prev_pr_adj <- all_rsv_prev_adj / pop_tot * 100000
 all_rsv_prev_pd_adj <- (tot_asth_no_adj - all_rsv_prev_adj) / tot_asth_no_adj * 100
 
-# -----------------------------
-# 1st year of life
-# -----------------------------
-
-#Total RSV-LRTI cases over 1st year: sum point estimates for outcomes
-num_OP_ED_Hosp_no_1st <- OP_no_PE_1st_a+ED_no_PE_1st_a+Hosps_no_PE_1st_a
-num_OP_ED_Hosp_mAb_1st <- OP_mAb_PE_1st_a+ED_mAb_PE_1st_a+Hosps_mAb_PE_1st_a
-num_OP_ED_Hosp_rsvPreF_1st <- OP_rsvPreF_PE_1st_a+ED_rsvPreF_PE_1st_a+Hosps_rsvPreF_PE_1st_a
-
-# number of kids without RSV-LRTI for each strategy
-# no intervention, mAb, rsvPreF, Combined strategies
-tot_wo_OP_no_1st <- pop_tot - num_OP_ED_Hosp_no_1st
-tot_wo_OP_mAb_1st <- pop_tot - num_OP_ED_Hosp_mAb_1st
-tot_wo_OP_rsvPreF_1st <- pop_tot - num_OP_ED_Hosp_rsvPreF_1st
-
-# calculate rate/prevalence of asthma among those without RSV-LRTI
-r_asth_norsv_1st <- prev_no_rsv_func(prev_tot, pop_tot, aOR_w, num_OP_ED_Hosp_no_1st, tot_wo_OP_no_1st)
-
-#We can think about using this alternative adjusted OR if we really want 1st year of life data, will also need to consider doing the below with the r_asth_norsv_u variable
-#RR_wadj <- aOR_w/((1-(r_asth_norsv_1st))+(r_asth_norsv_1st*aOR_w))
-#r_asth_norsv_1st_adj <- prev_no_rsv_func(prev_tot, pop_tot, RR_wadj, tot_RSV_no_1st, tot_wo_RSV_no_1st)
-
-# ----------------------------- #
-# Using aRR from OR
-# ----------------------------- #
-
-# calculate rate/prevalence of asthma among those without RSV-LRTI
-r_asth_norsv_1st_adj <- prev_no_rsv_func(prev_tot, pop_tot, RR_w, num_OP_ED_Hosp_no_1st, tot_wo_OP_no_1st)
-
-# number of asthma cases among those without RSV-LRTI
-asth_wo_OP_no_1st_adj <- asth_no_rsv_func(tot_wo_OP_no_1st, r_asth_norsv_1st_adj)
-asth_wo_OP_mAb_1st_adj <- asth_no_rsv_func(tot_wo_OP_mAb_1st, r_asth_norsv_1st_adj)
-asth_wo_OP_rsvPreF_1st_adj <- asth_no_rsv_func(tot_wo_OP_rsvPreF_1st, r_asth_norsv_1st_adj)
-
-# number of asthma cases among those with RSV-LRTI
-asth_OP_no_1st_adj <- asth_rsv_func(num_OP_ED_Hosp_no_1st, r_asth_norsv_1st_adj, RR_w)
-asth_OP_mAb_1st_adj <- asth_rsv_func(num_OP_ED_Hosp_mAb_1st, r_asth_norsv_1st_adj, RR_w)
-asth_OP_rsvPreF_1st_adj <- asth_rsv_func(num_OP_ED_Hosp_rsvPreF_1st, r_asth_norsv_1st_adj, RR_w)
-
-# total with asthma
-tot_asth_no_1st_adj <- tot_asth_func(asth_OP_no_1st_adj, asth_wo_OP_no_1st_adj)
-tot_asth_mAb_1st_adj <- tot_asth_func(asth_OP_mAb_1st_adj, asth_wo_OP_mAb_1st_adj)
-tot_asth_rsvPreF_1st_adj <-tot_asth_func(asth_OP_rsvPreF_1st_adj, asth_wo_OP_rsvPreF_1st_adj)
-
-# total asthma per 10,000 population
-tot_asth_no_pr_1st_adj <- tot_asth_no_1st_adj / pop_tot * 10000
-tot_asth_mAb_pr_1st_adj <- tot_asth_mAb_1st_adj / pop_tot * 10000
-tot_asth_rsvPreF_pr_1st_adj <- tot_asth_rsvPreF_1st_adj / pop_tot * 10000
-
-# total asthma percent decrease from status quo
-tot_asth_mAb_pd_1st_adj <- (tot_asth_no_1st_adj - tot_asth_mAb_1st_adj) / tot_asth_no_1st_adj * 100
-tot_asth_rsvPreF_pd_1st_adj <- (tot_asth_no_1st_adj - tot_asth_rsvPreF_1st_adj) / tot_asth_no_1st_adj * 100
-
-# number of asthma cases among those with RSV-LRTI had they not been infected
-asth_null_no_1st_adj <- asth_rsv_null_func(num_OP_ED_Hosp_no_1st, r_asth_norsv_1st_adj)
-asth_null_mAb_1st_adj <- asth_rsv_null_func(num_OP_ED_Hosp_mAb_1st, r_asth_norsv_1st_adj)
-asth_null_rsvPreF_1st_adj <-asth_rsv_null_func(num_OP_ED_Hosp_rsvPreF_1st, r_asth_norsv_1st_adj)
-
-# RSV-LRTI attributable asthma
-att_no_1st_adj <- asth_rsv_att_func(asth_OP_no_1st_adj, asth_null_no_1st_adj)
-att_mAb_1st_adj <- asth_rsv_att_func(asth_OP_mAb_1st_adj, asth_null_mAb_1st_adj)
-att_rsvPreF_1st_adj <-asth_rsv_att_func(asth_OP_rsvPreF_1st_adj, asth_null_rsvPreF_1st_adj)
-
-# total recurrent wheeze/asthma, all RSV LRTI or ED encounter  prevented
-asth_all_RSV_prev_1st_adj <- asth_null_no_1st_adj + asth_wo_OP_no_1st_adj
-
-# RSV-LRTI attributable asthma per 10,000 population
-att_no_pr_1st_adj <- att_no_1st_adj / pop_tot * 10000
-att_mAb_pr_1st_adj <- att_mAb_1st_adj / pop_tot * 10000
-att_rsvPreF_pr_1st_adj <- att_rsvPreF_1st_adj / pop_tot * 10000
-
-# RSV-LRTI attributable asthma percent decrease from status quo
-att_mAb_pd_1st_adj <- (att_no_1st_adj - att_mAb_1st_adj) / att_no_1st_adj * 100
-att_rsvPreF_pd_1st_adj <- (att_no_1st_adj - att_rsvPreF_1st_adj) / att_no_1st_adj * 100
-#att_Combined_pd <- (att_no - att_Combined) / att_no * 100
-
-# Total recurrent wheeze/ asthma if all RSV-LRTI were prevented
-# equal to the total population * the baseline rate of asthma among those w/o RSV
-all_rsv_prev_1st_adj <- asth_no_rsv_func(pop_tot, r_asth_norsv_1st_adj)
-all_rsv_prev_pr_1st_adj <- all_rsv_prev_1st_adj / pop_tot * 10000
-all_rsv_prev_pd_1st_adj <- (tot_asth_no_1st_adj - all_rsv_prev_1st_adj) / tot_asth_no_1st_adj * 100
-
 #------------------------------------#
-#using OR -> RR (ie 2.22 [1.34-3.66]) - Sensitivity analysis
+#using OR -> RR (ie 2.22 [1.34-3.66]) - Sensitivity analysis for 1st + 2nd year
 #------------------------------------#
 
 RR_w75 <- aOR_w/((1-r_asth_norsv)+(r_asth_norsv*aOR_w))*.75
@@ -197,10 +199,10 @@ tot_asth_no_adj75 <- tot_asth_func(asth_OP_no_adj75, asth_wo_OP_no_adj75)
 tot_asth_mAb_adj75 <- tot_asth_func(asth_OP_mAb_adj75, asth_wo_OP_mAb_adj75)
 tot_asth_rsvPreF_adj75 <-tot_asth_func(asth_OP_rsvPreF_adj75, asth_wo_OP_rsvPreF_adj75)
 
-# total asthma per 10,000 population
-tot_asth_no_pr_adj75 <- tot_asth_no_adj75 / pop_tot * 10000
-tot_asth_mAb_pr_adj75 <- tot_asth_mAb_adj75 / pop_tot * 10000
-tot_asth_rsvPreF_pr_adj75 <- tot_asth_rsvPreF_adj75 / pop_tot * 10000
+# total asthma per 100,000 population
+tot_asth_no_pr_adj75 <- tot_asth_no_adj75 / pop_tot * 100000
+tot_asth_mAb_pr_adj75 <- tot_asth_mAb_adj75 / pop_tot * 100000
+tot_asth_rsvPreF_pr_adj75 <- tot_asth_rsvPreF_adj75 / pop_tot * 100000
 
 # total asthma percent decrease from status quo
 tot_asth_mAb_pd_adj75 <- (tot_asth_no_adj75 - tot_asth_mAb_adj75) / tot_asth_no_adj75 * 100
@@ -219,10 +221,10 @@ att_rsvPreF_adj75 <-asth_rsv_att_func(asth_OP_rsvPreF_adj75, asth_null_rsvPreF_a
 # total recurrent wheeze/asthma, all RSV LRTI or ED encounter  prevented
 asth_all_RSV_prev_adj75 <- asth_null_no_adj75 + asth_wo_OP_no_adj75
 
-# RSV-LRTI attributable asthma per 10,000 population
-att_no_pr_adj75 <- att_no_adj75 / pop_tot * 10000
-att_mAb_pr_adj75 <- att_mAb_adj75 / pop_tot * 10000
-att_rsvPreF_pr_adj75 <- att_rsvPreF_adj75 / pop_tot * 10000
+# RSV-LRTI attributable asthma per 100,000 population
+att_no_pr_adj75 <- att_no_adj75 / pop_tot * 100000
+att_mAb_pr_adj75 <- att_mAb_adj75 / pop_tot * 100000
+att_rsvPreF_pr_adj75 <- att_rsvPreF_adj75 / pop_tot * 100000
 
 # RSV-LRTI attributable asthma percent decrease from status quo
 att_mAb_pd_adj75 <- (att_no_adj75 - att_mAb_adj75) / att_no_adj75 * 100
@@ -231,7 +233,7 @@ att_rsvPreF_pd_adj75 <- (att_no_adj75 - att_rsvPreF_adj75) / att_no_adj75 * 100
 # Total recurrent wheeze/ asthma if all RSV-LRTI were prevented
 # equal to the total population * the baseline rate of asthma among those w/o RSV
 all_rsv_prev_adj75 <- asth_no_rsv_func(pop_tot, r_asth_norsv_adj75)
-all_rsv_prev_pr_adj75 <- all_rsv_prev_adj75 / pop_tot * 10000
+all_rsv_prev_pr_adj75 <- all_rsv_prev_adj75 / pop_tot * 100000
 all_rsv_prev_pd_adj75 <- (tot_asth_no_adj75 - all_rsv_prev_adj75) / tot_asth_no_adj75 * 100
 
 #75%
@@ -253,10 +255,10 @@ tot_asth_no_adj50 <- tot_asth_func(asth_OP_no_adj50, asth_wo_OP_no_adj50)
 tot_asth_mAb_adj50 <- tot_asth_func(asth_OP_mAb_adj50, asth_wo_OP_mAb_adj50)
 tot_asth_rsvPreF_adj50 <-tot_asth_func(asth_OP_rsvPreF_adj50, asth_wo_OP_rsvPreF_adj50)
 
-# total asthma per 10,000 population
-tot_asth_no_pr_adj50 <- tot_asth_no_adj50 / pop_tot * 10000
-tot_asth_mAb_pr_adj50 <- tot_asth_mAb_adj50 / pop_tot * 10000
-tot_asth_rsvPreF_pr_adj50 <- tot_asth_rsvPreF_adj50 / pop_tot * 10000
+# total asthma per 100,000 population
+tot_asth_no_pr_adj50 <- tot_asth_no_adj50 / pop_tot * 100000
+tot_asth_mAb_pr_adj50 <- tot_asth_mAb_adj50 / pop_tot * 100000
+tot_asth_rsvPreF_pr_adj50 <- tot_asth_rsvPreF_adj50 / pop_tot * 100000
 
 # total asthma percent decrease from status quo
 tot_asth_mAb_pd_adj50 <- (tot_asth_no_adj50 - tot_asth_mAb_adj50) / tot_asth_no_adj50 * 100
@@ -275,10 +277,10 @@ att_rsvPreF_adj50 <-asth_rsv_att_func(asth_OP_rsvPreF_adj50, asth_null_rsvPreF_a
 # total recurrent wheeze/asthma, all RSV LRTI or ED encounter  prevented
 asth_all_RSV_prev_adj50 <- asth_null_no_adj50 + asth_wo_OP_no_adj50
 
-# RSV-LRTI attributable asthma per 10,000 population
-att_no_pr_adj50 <- att_no_adj50 / pop_tot * 10000
-att_mAb_pr_adj50 <- att_mAb_adj50 / pop_tot * 10000
-att_rsvPreF_pr_adj50 <- att_rsvPreF_adj50 / pop_tot * 10000
+# RSV-LRTI attributable asthma per 100,000 population
+att_no_pr_adj50 <- att_no_adj50 / pop_tot * 100000
+att_mAb_pr_adj50 <- att_mAb_adj50 / pop_tot * 100000
+att_rsvPreF_pr_adj50 <- att_rsvPreF_adj50 / pop_tot * 100000
 
 # RSV-LRTI attributable asthma percent decrease from status quo
 att_mAb_pd_adj50 <- (att_no_adj50 - att_mAb_adj50) / att_no_adj50 * 100
@@ -287,7 +289,7 @@ att_rsvPreF_pd_adj50 <- (att_no_adj50 - att_rsvPreF_adj50) / att_no_adj50 * 100
 # Total recurrent wheeze/ asthma if all RSV-LRTI were prevented
 # equal to the total population * the baseline rate of asthma among those w/o RSV
 all_rsv_prev_adj50 <- asth_no_rsv_func(pop_tot, r_asth_norsv_adj50)
-all_rsv_prev_pr_adj50 <- all_rsv_prev_adj50 / pop_tot * 10000
+all_rsv_prev_pr_adj50 <- all_rsv_prev_adj50 / pop_tot * 100000
 all_rsv_prev_pd_adj50 <- (tot_asth_no_adj50 - all_rsv_prev_adj50) / tot_asth_no_adj50 * 100
 
 #25%
@@ -309,10 +311,10 @@ tot_asth_no_adj25 <- tot_asth_func(asth_OP_no_adj25, asth_wo_OP_no_adj25)
 tot_asth_mAb_adj25 <- tot_asth_func(asth_OP_mAb_adj25, asth_wo_OP_mAb_adj25)
 tot_asth_rsvPreF_adj25 <-tot_asth_func(asth_OP_rsvPreF_adj25, asth_wo_OP_rsvPreF_adj25)
 
-# total asthma per 10,000 population
-tot_asth_no_pr_adj25 <- tot_asth_no_adj25 / pop_tot * 10000
-tot_asth_mAb_pr_adj25 <- tot_asth_mAb_adj25 / pop_tot * 10000
-tot_asth_rsvPreF_pr_adj25 <- tot_asth_rsvPreF_adj25 / pop_tot * 10000
+# total asthma per 100,000 population
+tot_asth_no_pr_adj25 <- tot_asth_no_adj25 / pop_tot * 100000
+tot_asth_mAb_pr_adj25 <- tot_asth_mAb_adj25 / pop_tot * 100000
+tot_asth_rsvPreF_pr_adj25 <- tot_asth_rsvPreF_adj25 / pop_tot * 100000
 
 # total asthma percent decrease from status quo
 tot_asth_mAb_pd_adj25 <- (tot_asth_no_adj25 - tot_asth_mAb_adj25) / tot_asth_no_adj25 * 100
@@ -331,10 +333,10 @@ att_rsvPreF_adj25 <-asth_rsv_att_func(asth_OP_rsvPreF_adj25, asth_null_rsvPreF_a
 # total recurrent wheeze/asthma, all RSV LRTI or ED encounter  prevented
 asth_all_RSV_prev_adj25 <- asth_null_no_adj25 + asth_wo_OP_no_adj25
 
-# RSV-LRTI attributable asthma per 10,000 population
-att_no_pr_adj25 <- att_no_adj25 / pop_tot * 10000
-att_mAb_pr_adj25 <- att_mAb_adj25 / pop_tot * 10000
-att_rsvPreF_pr_adj25 <- att_rsvPreF_adj25 / pop_tot * 10000
+# RSV-LRTI attributable asthma per 100,000 population
+att_no_pr_adj25 <- att_no_adj25 / pop_tot * 100000
+att_mAb_pr_adj25 <- att_mAb_adj25 / pop_tot * 100000
+att_rsvPreF_pr_adj25 <- att_rsvPreF_adj25 / pop_tot * 100000
 
 # RSV-LRTI attributable asthma percent decrease from status quo
 att_mAb_pd_adj25 <- (att_no_adj25 - att_mAb_adj25) / att_no_adj25 * 100
@@ -343,7 +345,7 @@ att_rsvPreF_pd_adj25 <- (att_no_adj25 - att_rsvPreF_adj25) / att_no_adj25 * 100
 # Total recurrent wheeze/ asthma if all RSV-LRTI were prevented
 # equal to the total population * the baseline rate of asthma among those w/o RSV
 all_rsv_prev_adj25 <- asth_no_rsv_func(pop_tot, r_asth_norsv_adj25)
-all_rsv_prev_pr_adj25 <- all_rsv_prev_adj25 / pop_tot * 10000
+all_rsv_prev_pr_adj25 <- all_rsv_prev_adj25 / pop_tot * 100000
 all_rsv_prev_pd_adj25 <- (tot_asth_no_adj25 - all_rsv_prev_adj25) / tot_asth_no_adj25 * 100
 
 #EXTRA/LEFT OVER CODE
@@ -552,3 +554,5 @@ all_rsv_prev_pd_adj25 <- (tot_asth_no_adj25 - all_rsv_prev_adj25) / tot_asth_no_
 
 #OP_no_PE_1st_a+ED_no_PE_1st_a+Hosps_no_PE_1st_a
 #OP_no_PE_2nd_a+ED_no_PE_2nd_a+Hosps_no_PE_2nd_a
+
+

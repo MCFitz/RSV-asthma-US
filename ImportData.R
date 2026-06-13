@@ -89,39 +89,47 @@ source("adjustmentformultipleepisode.R")
 #Outpatient episodes alone: sum point estimates across years and ages
 OP_no_df_1st+OP_no_df_2nd
 quantile(OP_no_df_1st+OP_no_df_2nd, probs = c(0.05, 0.95))
+quantile(OP_no_df_1st, probs = c(0.05, 0.95))
+quantile(OP_no_df_2nd, probs = c(0.05, 0.95))
 OP_mAb_df_1st+OP_mAb_df_2nd
 quantile(OP_mAb_df_1st+OP_mAb_df_2nd, probs = c(0.05, 0.95))
+quantile(OP_mAb_df_1st, probs = c(0.05, 0.95))
+quantile(OP_mAb_df_2nd, probs = c(0.05, 0.95))
 OP_rsvPreF_df_1st+OP_rsvPreF_df_2nd
+quantile((OP_no_df_1st-OP_mAb_df_1st)/OP_no_df_1st*100, probs = c(0.05, 0.95))
 #ED episodes alone: sum point estimates across years and ages
 ED_no_df_1st+ED_no_df_2nd
 quantile(ED_no_df_1st+ED_no_df_2nd, probs = c(0.05, 0.95))
+quantile(ED_no_df_1st, probs = c(0.05, 0.95))
+quantile(ED_no_df_2nd, probs = c(0.05, 0.95))
 ED_mAb_df_1st+ED_mAb_df_2nd
 quantile(ED_mAb_df_1st+ED_mAb_df_2nd, probs = c(0.05, 0.95))
+quantile(ED_mAb_df_1st, probs = c(0.05, 0.95))
+quantile(ED_mAb_df_2nd, probs = c(0.05, 0.95))
 ED_rsvPreF_df_1st+ED_rsvPreF_df_2nd
+quantile((ED_no_df_1st-ED_mAb_df_1st)/ED_no_df_1st*100, probs = c(0.05, 0.95))
 #hosp episodes alone: sum point estimates across years and ages
 Hosps_no_df_1st+Hosps_no_df_2nd
 quantile(Hosps_no_df_1st+Hosps_no_df_2nd, probs = c(0.05, 0.95))
+quantile(Hosps_no_df_1st, probs = c(0.05, 0.95))
+quantile(Hosps_no_df_2nd, probs = c(0.05, 0.95))
 Hosps_mAb_df_1st+Hosps_mAb_df_2nd
 quantile(Hosps_mAb_df_1st+Hosps_mAb_df_2nd, probs = c(0.05, 0.95))
+quantile(Hosps_mAb_df_1st, probs = c(0.05, 0.95))
+quantile(Hosps_mAb_df_2nd, probs = c(0.05, 0.95))
 Hosps_rsvPreF_df_1st+Hosps_rsvPreF_df_2nd
+quantile((Hosps_no_df_1st-Hosps_mAb_df_1st)/Hosps_no_df_1st*100, probs = c(0.05, 0.95))
 
 #total episodes per scenario
 OP_no_df_1st+OP_no_df_2nd+ED_no_df_1st+ED_no_df_2nd+Hosps_no_df_1st+Hosps_no_df_2nd
 quantile(OP_no_df_1st+OP_no_df_2nd+ED_no_df_1st+ED_no_df_2nd+Hosps_no_df_1st+Hosps_no_df_2nd, probs = c(0.05, 0.95))
+quantile(OP_no_df_1st+ED_no_df_1st+Hosps_no_df_1st, probs = c(0.05, 0.95))
+quantile(OP_no_df_2nd+ED_no_df_2nd+Hosps_no_df_2nd, probs = c(0.05, 0.95))
 OP_mAb_df_1st+OP_mAb_df_2nd+ED_mAb_df_1st+ED_mAb_df_2nd+Hosps_mAb_df_1st+Hosps_mAb_df_2nd
 quantile(OP_mAb_df_1st+OP_mAb_df_2nd+ED_mAb_df_1st+ED_mAb_df_2nd+Hosps_mAb_df_1st+Hosps_mAb_df_2nd, probs = c(0.05, 0.95))
-
-#total episodes per year + scenario
-OP_no_df_1st+ED_no_df_1st+Hosps_no_df_1st
-quantile(OP_no_df_1st+ED_no_df_1st+Hosps_no_df_1st, probs = c(0.05, 0.95))
-OP_mAb_df_1st+ED_mAb_df_1st+Hosps_mAb_df_1st
 quantile(OP_mAb_df_1st+ED_mAb_df_1st+Hosps_mAb_df_1st, probs = c(0.05, 0.95))
-OP_rsvPreF_df_1st+ED_rsvPreF_df_1st+Hosps_rsvPreF_df_1st
-OP_no_df_2nd+ED_no_df_2nd+Hosps_no_df_2nd
-quantile(OP_no_df_2nd+ED_no_df_2nd+Hosps_no_df_2nd, probs = c(0.05, 0.95))
-OP_mAb_df_2nd+ED_mAb_df_2nd+Hosps_mAb_df_2nd
 quantile(OP_mAb_df_2nd+ED_mAb_df_2nd+Hosps_mAb_df_2nd, probs = c(0.05, 0.95))
-OP_rsvPreF_df_2nd+ED_rsvPreF_df_2nd+Hosps_rsvPreF_df_2nd
+quantile(((OP_no_df_1st+ED_no_df_1st+Hosps_no_df_1st)-(OP_mAb_df_1st+ED_mAb_df_1st+Hosps_mAb_df_1st))/(OP_no_df_1st+ED_no_df_1st+Hosps_no_df_1st)*100, probs = c(0.05, 0.95))
 
 #Point estimate
 #----------------------
@@ -129,20 +137,23 @@ OP_rsvPreF_df_2nd+ED_rsvPreF_df_2nd+Hosps_rsvPreF_df_2nd
 OP_no_PE_1st+OP_no_PE_2nd
 OP_mAb_PE_1st+OP_mAb_PE_2nd
 OP_rsvPreF_PE_1st+OP_rsvPreF_PE_2nd
+(OP_no_PE_1st-OP_mAb_PE_1st)/OP_no_PE_1st*100
 #ED episodes alone: sum point estimates across years and ages
 ED_no_PE_1st+ED_no_PE_2nd
 ED_mAb_PE_1st+ED_mAb_PE_2nd
 ED_rsvPreF_PE_1st+ED_rsvPreF_PE_2nd
+(ED_no_PE_1st-ED_mAb_PE_1st)/ED_no_PE_1st*100
 #hosp episodes alone: sum point estimates across years and ages
 Hosps_no_PE_1st+Hosps_no_PE_2nd
 Hosps_mAb_PE_1st+Hosps_mAb_PE_2nd
 Hosps_rsvPreF_PE_1st+Hosps_rsvPreF_PE_2nd
+(Hosps_no_PE_1st-Hosps_mAb_PE_1st)/Hosps_no_PE_1st*100
 #total episodes per year
 OP_no_PE_1st+ED_no_PE_1st+Hosps_no_PE_1st
 OP_mAb_PE_1st+ED_mAb_PE_1st+Hosps_mAb_PE_1st
 OP_no_PE_1st+OP_no_PE_2nd+ED_no_PE_1st+ED_no_PE_2nd+Hosps_no_PE_1st+Hosps_no_PE_2nd
 OP_mAb_PE_1st+OP_mAb_PE_2nd+ED_mAb_PE_1st+ED_mAb_PE_2nd+Hosps_mAb_PE_1st+Hosps_mAb_PE_2nd
-
+((OP_no_PE_1st+ED_no_PE_1st+Hosps_no_PE_1st)-(OP_mAb_PE_1st+ED_mAb_PE_1st+Hosps_mAb_PE_1st))/(OP_no_PE_1st+ED_no_PE_1st+Hosps_no_PE_1st)*100
 #first/second year of life totals patient level events w/ combined totals - adjusted
 OP_no_PE_1st_a+ED_no_PE_1st_a+Hosps_no_PE_1st_a
 OP_no_PE_2nd_a+ED_no_PE_2nd_a+Hosps_no_PE_2nd_a
@@ -150,6 +161,9 @@ OP_no_PE_1st_a+ED_no_PE_1st_a+Hosps_no_PE_1st_a+OP_no_PE_2nd_a+ED_no_PE_2nd_a+Ho
 OP_mAb_PE_1st_a+ED_mAb_PE_1st_a+Hosps_mAb_PE_1st_a
 OP_mAb_PE_2nd_a+ED_mAb_PE_2nd_a+Hosps_mAb_PE_2nd_a
 OP_mAb_PE_1st_a+ED_mAb_PE_1st_a+Hosps_mAb_PE_1st_a+OP_mAb_PE_2nd_a+ED_mAb_PE_2nd_a+Hosps_mAb_PE_2nd_a
+((OP_no_PE_1st_a+ED_no_PE_1st_a+Hosps_no_PE_1st_a)-(OP_mAb_PE_1st_a+ED_mAb_PE_1st_a+Hosps_mAb_PE_1st_a))/(OP_no_PE_1st_a+ED_no_PE_1st_a+Hosps_no_PE_1st_a)*100
+
+quantile(((OP_no_df_1st_a+ED_no_df_1st_a+Hosps_no_df_1st_a)-(OP_mAb_df_1st_a+ED_mAb_df_1st_a+Hosps_mAb_df_1st_a))/(OP_no_df_1st_a+ED_no_df_1st_a+Hosps_no_df_1st_a)*100, probs = c(0.05, 0.95))
 
 #EXTRA/OLD CODE
 

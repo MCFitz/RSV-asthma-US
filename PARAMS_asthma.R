@@ -21,7 +21,7 @@ prev_tot_u <- rnorm(trials, prev_tot, prev_tot_sd)
 # controlling genetic effects 2-6 y/o - 2.45, 95% CI (1.23, 4.88)
 aOR_w <- 2.45 
 aOR_w_l <- 1.23 # lower bound
-rr_w_h <- 4.88 # higher bound
+aOR_w_h <- 4.88 # higher bound
 
 log(aOR_w) - log(aOR_w_h) # checking to make sure distance is similar for log-normal
 log(aOR_w) - log(aOR_w_l) # checking to make sure distance is similar for log-normal
