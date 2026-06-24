@@ -1,11 +1,10 @@
 # -----------------------------
-# USA Asthma related input parameters 
+# Asthma related input parameters 
 # -----------------------------
 
 trials <- 1000
 
-# total population birth cohort use of national center 
-# for health statistics data from 2021
+# total population birth cohort use of national center for health statistics data from 2021
 pop_tot <- 3664292
 
 # baseline rate of wheeze/asthma among US pop by 6yo (regardless of RSV)

@@ -1,5 +1,4 @@
 # Created by Meagan Fitzpatrick and Ian Galbreath
-# Adapted code from Ortiz et al 2023 JACI Global
 
 # -----------------------------
 # Creating RSV incidence DF
@@ -8,7 +7,7 @@
 library(tidyverse)
 library(readxl)
 
-# Data supplied by Hutton team - ED/Hospitalization/Outpatient outcomes and CI - methods from Pediatrics manuscript 2024
+# Outpatient/ED/Hospitalization RSV-LRTI outcomes and CI for 3 years w/ corresponding PE
 hdataCI <- read_excel("Healthoutcomescomplete.xlsx")
 
 # Uncertainty DFs
@@ -16,68 +15,71 @@ hdataCI <- read_excel("Healthoutcomescomplete.xlsx")
 # OP
 OP_no_u_df <- hdataCI%>%filter(Intervention == "Natural History Outpatient")
 OP_mAb_u_df <- hdataCI%>%filter(Intervention == "Nirsevimab Outpatient")
-OP_rsvPreF_u_df <- hdataCI%>%filter(Intervention == "RSVpreF Outpatient")
-##Summing rows OP stratified by year of life to 3 years
-OP_no_df_1st <- rowSums(OP_no_u_df[3:14])
-OP_mAb_df_1st <- rowSums(OP_mAb_u_df[,3:14])
-OP_rsvPreF_df_1st <- rowSums(OP_rsvPreF_u_df[,3:14])
-OP_no_df_2nd <- rowSums(OP_no_u_df[15:26])
-OP_mAb_df_2nd <- rowSums(OP_mAb_u_df[,15:26])
-OP_rsvPreF_df_2nd <- rowSums(OP_rsvPreF_u_df[,15:26])
+#OP_rsvPreF_u_df <- hdataCI%>%filter(Intervention == "RSVpreF Outpatient")
+
+#Summing rows OP stratified by year of life to 2 years
+OP_no_u_1st <- rowSums(OP_no_u_df[3:14])
+OP_mAb_u_1st <- rowSums(OP_mAb_u_df[,3:14])
+#OP_rsvPreF_u_1st <- rowSums(OP_rsvPreF_u_df[,3:14])
+#OP_no_u_2nd <- rowSums(OP_no_u_df[15:26])
+#OP_mAb_u_2nd <- rowSums(OP_mAb_u_df[,15:26])
+#OP_rsvPreF_u_2nd <- rowSums(OP_rsvPreF_u_df[,15:26])
+
 # ED
 ED_no_u_df <- hdataCI%>%filter(Intervention == "Natural History Emergency Department")
 ED_mAb_u_df <- hdataCI%>%filter(Intervention == "Nirsevimab Emergency Department")
-ED_rsvPreF_u_df <- hdataCI%>%filter(Intervention == "RSVpreF Emergency Department")
-##Summing rows ED stratified by year of life to 3 years
-ED_no_df_1st <- rowSums(ED_no_u_df[3:14])
-ED_mAb_df_1st <- rowSums(ED_mAb_u_df[,3:14])
-ED_rsvPreF_df_1st <- rowSums(ED_rsvPreF_u_df[,3:14])
-ED_no_df_2nd <- rowSums(ED_no_u_df[15:26])
-ED_mAb_df_2nd <- rowSums(ED_mAb_u_df[,15:26])
-ED_rsvPreF_df_2nd <- rowSums(ED_rsvPreF_u_df[,15:26])
+#ED_rsvPreF_u_df <- hdataCI%>%filter(Intervention == "RSVpreF Emergency Department")
+#Summing rows ED stratified by year of life to 2 years
+ED_no_u_1st <- rowSums(ED_no_u_df[3:14])
+ED_mAb_u_1st <- rowSums(ED_mAb_u_df[,3:14])
+#ED_rsvPreF_u_1st <- rowSums(ED_rsvPreF_u_df[,3:14])
+#ED_no_u_2nd <- rowSums(ED_no_u_df[15:26])
+#ED_mAb_u_2nd <- rowSums(ED_mAb_u_df[,15:26])
+#ED_rsvPreF_df_2nd <- rowSums(ED_rsvPreF_u_df[,15:26])
+
 # hospitalizations
 hosps_no_u_df <- hdataCI%>%filter(Intervention == "Natural History Hospitalizations")
 hosps_mAb_u_df <- hdataCI%>%filter(Intervention == "Nirsevimab Hospitalizations")
-hosps_rsvPreF_u_df <- hdataCI%>%filter(Intervention == "RSVpreF Hospitalizations")
-##Summing rows hospitalizations stratified by year of life to 3 years
-Hosps_no_df_1st <- rowSums(hosps_no_u_df[3:14])
-Hosps_mAb_df_1st <- rowSums(hosps_mAb_u_df[,3:14])
-Hosps_rsvPreF_df_1st <- rowSums(hosps_rsvPreF_u_df[,3:14])
-Hosps_no_df_2nd <- rowSums(hosps_no_u_df[15:26])
-Hosps_mAb_df_2nd <- rowSums(hosps_mAb_u_df[,15:26])
-Hosps_rsvPreF_df_2nd <- rowSums(hosps_rsvPreF_u_df[,15:26])
+#hosps_rsvPreF_u_df <- hdataCI%>%filter(Intervention == "RSVpreF Hospitalizations")
+#Summing rows hospitalizations stratified by year of life to 2 years
+Hosps_no_u_1st <- rowSums(hosps_no_u_df[3:14])
+Hosps_mAb_u_1st <- rowSums(hosps_mAb_u_df[,3:14])
+#Hosps_rsvPreF_u_1st <- rowSums(hosps_rsvPreF_u_df[,3:14])
+#Hosps_no_u_2nd <- rowSums(hosps_no_u_df[15:26])
+#Hosps_mAb_u_2nd <- rowSums(hosps_mAb_u_df[,15:26])
+#Hosps_rsvPreF_u_2nd <- rowSums(hosps_rsvPreF_u_df[,15:26])
 
 # Point estimate DF
 # -----------------------------
-
 OP_no_df <- hdataCI%>%filter(Intervention == "Natural History Outpatient PE")
 OP_mAb_df <- hdataCI%>%filter(Intervention == "Nirsevimab Outpatient PE")
-OP_rsvPreF_df <- hdataCI%>%filter(Intervention == "RSVpreF Outpatient PE")
+#OP_rsvPreF_df <- hdataCI%>%filter(Intervention == "RSVpreF Outpatient PE")
 ED_no_df <- hdataCI%>%filter(Intervention == "Natural History Emergency Department PE")
 ED_mAb_df <- hdataCI%>%filter(Intervention == "Nirsevimab Emergency Department PE")
-ED_rsvPreF_df <- hdataCI%>%filter(Intervention == "RSVpreF Emergency Department PE")
+#ED_rsvPreF_df <- hdataCI%>%filter(Intervention == "RSVpreF Emergency Department PE")
 hosps_no_df <- hdataCI%>%filter(Intervention == "Natural History Hospitalizations PE")
 hosps_mAb_df <- hdataCI%>%filter(Intervention == "Nirsevimab Hospitalizations PE")
-hosps_rsvPreF_df <- hdataCI%>%filter(Intervention == "RSVpreF Hospitalizations PE")
-#converting uncertainty data to PE by scenario, year of life, and healthcare setting
+#hosps_rsvPreF_df <- hdataCI%>%filter(Intervention == "RSVpreF Hospitalizations PE")
+
+#converting PE data yearly data
 OP_no_PE_1st <- rowSums(OP_no_df[3:14])
 OP_mAb_PE_1st <- rowSums(OP_mAb_df[,3:14])
-OP_rsvPreF_PE_1st <- rowSums(OP_rsvPreF_df[,3:14])
-OP_no_PE_2nd <- rowSums(OP_no_df[15:26])
-OP_mAb_PE_2nd <- rowSums(OP_mAb_df[,15:26])
-OP_rsvPreF_PE_2nd <- rowSums(OP_rsvPreF_df[,15:26])
+#OP_rsvPreF_PE_1st <- rowSums(OP_rsvPreF_df[,3:14])
+#OP_no_PE_2nd <- rowSums(OP_no_df[15:26])
+#OP_mAb_PE_2nd <- rowSums(OP_mAb_df[,15:26])
+#OP_rsvPreF_PE_2nd <- rowSums(OP_rsvPreF_df[,15:26])
 ED_no_PE_1st <- rowSums(ED_no_df[3:14])
 ED_mAb_PE_1st <- rowSums(ED_mAb_df[,3:14])
-ED_rsvPreF_PE_1st <- rowSums(ED_rsvPreF_df[,3:14])
-ED_no_PE_2nd <- rowSums(ED_no_df[15:26])
-ED_mAb_PE_2nd <- rowSums(ED_mAb_df[,15:26])
-ED_rsvPreF_PE_2nd <- rowSums(ED_rsvPreF_df[,15:26])
+#ED_rsvPreF_PE_1st <- rowSums(ED_rsvPreF_df[,3:14])
+#ED_no_PE_2nd <- rowSums(ED_no_df[15:26])
+#ED_mAb_PE_2nd <- rowSums(ED_mAb_df[,15:26])
+#ED_rsvPreF_PE_2nd <- rowSums(ED_rsvPreF_df[,15:26])
 Hosps_no_PE_1st <- rowSums(hosps_no_df[3:14])
 Hosps_mAb_PE_1st <- rowSums(hosps_mAb_df[,3:14])
-Hosps_rsvPreF_PE_1st <- rowSums(hosps_rsvPreF_df[,3:14])
-Hosps_no_PE_2nd <- rowSums(hosps_no_df[15:26])
-Hosps_mAb_PE_2nd <- rowSums(hosps_mAb_df[,15:26])
-Hosps_rsvPreF_PE_2nd <- rowSums(hosps_rsvPreF_df[,15:26])
+#Hosps_rsvPreF_PE_1st <- rowSums(hosps_rsvPreF_df[,3:14])
+#Hosps_no_PE_2nd <- rowSums(hosps_no_df[15:26])
+#Hosps_mAb_PE_2nd <- rowSums(hosps_mAb_df[,15:26])
+#Hosps_rsvPreF_PE_2nd <- rowSums(hosps_rsvPreF_df[,15:26])
 
 # -----------------------------
 # CALCULATING TOTAL EVENTS AND PATIENT LEVEL DATA
@@ -86,87 +88,103 @@ source("adjustmentformultipleepisode.R")
 
 #Uncertainty
 #----------------------
-#Outpatient episodes alone: sum point estimates across years and ages
-OP_no_df_1st+OP_no_df_2nd
-quantile(OP_no_df_1st+OP_no_df_2nd, probs = c(0.05, 0.95))
-quantile(OP_no_df_1st, probs = c(0.05, 0.95))
-quantile(OP_no_df_2nd, probs = c(0.05, 0.95))
-OP_mAb_df_1st+OP_mAb_df_2nd
-quantile(OP_mAb_df_1st+OP_mAb_df_2nd, probs = c(0.05, 0.95))
-quantile(OP_mAb_df_1st, probs = c(0.05, 0.95))
-quantile(OP_mAb_df_2nd, probs = c(0.05, 0.95))
-OP_rsvPreF_df_1st+OP_rsvPreF_df_2nd
-quantile((OP_no_df_1st-OP_mAb_df_1st)/OP_no_df_1st*100, probs = c(0.05, 0.95))
-#ED episodes alone: sum point estimates across years and ages
-ED_no_df_1st+ED_no_df_2nd
-quantile(ED_no_df_1st+ED_no_df_2nd, probs = c(0.05, 0.95))
-quantile(ED_no_df_1st, probs = c(0.05, 0.95))
-quantile(ED_no_df_2nd, probs = c(0.05, 0.95))
-ED_mAb_df_1st+ED_mAb_df_2nd
-quantile(ED_mAb_df_1st+ED_mAb_df_2nd, probs = c(0.05, 0.95))
-quantile(ED_mAb_df_1st, probs = c(0.05, 0.95))
-quantile(ED_mAb_df_2nd, probs = c(0.05, 0.95))
-ED_rsvPreF_df_1st+ED_rsvPreF_df_2nd
-quantile((ED_no_df_1st-ED_mAb_df_1st)/ED_no_df_1st*100, probs = c(0.05, 0.95))
-#hosp episodes alone: sum point estimates across years and ages
-Hosps_no_df_1st+Hosps_no_df_2nd
-quantile(Hosps_no_df_1st+Hosps_no_df_2nd, probs = c(0.05, 0.95))
-quantile(Hosps_no_df_1st, probs = c(0.05, 0.95))
-quantile(Hosps_no_df_2nd, probs = c(0.05, 0.95))
-Hosps_mAb_df_1st+Hosps_mAb_df_2nd
-quantile(Hosps_mAb_df_1st+Hosps_mAb_df_2nd, probs = c(0.05, 0.95))
-quantile(Hosps_mAb_df_1st, probs = c(0.05, 0.95))
-quantile(Hosps_mAb_df_2nd, probs = c(0.05, 0.95))
-Hosps_rsvPreF_df_1st+Hosps_rsvPreF_df_2nd
-quantile((Hosps_no_df_1st-Hosps_mAb_df_1st)/Hosps_no_df_1st*100, probs = c(0.05, 0.95))
+#Outpatient episodes 
+#OP_no_u_1st+OP_no_u_2nd
+#quantile(OP_no_u_1st+OP_no_u_2nd, probs = c(0.025, 0.975))
+quantile(OP_no_u_1st, probs = c(0.025, 0.975))
+#quantile(OP_no_u_2nd, probs = c(0.025, 0.975))
+#OP_mAb_u_1st+OP_mAb_u_2nd
+#quantile(OP_mAb_u_1st+OP_mAb_u_2nd, probs = c(0.025, 0.975))
+quantile(OP_mAb_u_1st, probs = c(0.025, 0.975))
+#quantile(OP_mAb_u_2nd, probs = c(0.025, 0.975))
+#OP_rsvPreF_df_1st+OP_rsvPreF_df_2nd
+quantile((OP_no_u_1st-OP_mAb_u_1st)/OP_no_u_1st*100, probs = c(0.025, 0.975))
+
+#ED episodes
+#ED_no_u_1st+ED_no_u_2nd
+#quantile(ED_no_u_1st+ED_no_u_2nd, probs = c(0.025, 0.975))
+quantile(ED_no_u_1st, probs = c(0.025, 0.975))
+#quantile(ED_no_u_2nd, probs = c(0.025, 0.975))
+#ED_mAb_u_1st+ED_mAb_u_2nd
+#quantile(ED_mAb_u_1st+ED_mAb_u_2nd, probs = c(0.05, 0.975))
+quantile(ED_mAb_u_1st, probs = c(0.025, 0.975))
+#quantile(ED_mAb_u_2nd, probs = c(0.025, 0.975))
+#ED_rsvPreF_u_1st+ED_rsvPreF_u_2nd
+quantile((ED_no_u_1st-ED_mAb_u_1st)/ED_no_u_1st*100, probs = c(0.025, 0.975))
+
+#Hosp episodes 
+#Hosps_no_u_1st+Hosps_no_u_2nd
+#quantile(Hosps_no_u_1st+Hosps_no_u_2nd, probs = c(0.025, 0.975))
+quantile(Hosps_no_u_1st, probs = c(0.025, 0.975))
+#quantile(Hosps_no_u_2nd, probs = c(0.025, 0.975))
+#Hosps_mAb_u_1st+Hosps_mAb_u_2nd
+#quantile(Hosps_mAb_u_1st+Hosps_mAb_u_2nd, probs = c(0.025, 0.975))
+quantile(Hosps_mAb_u_1st, probs = c(0.025, 0.975))
+#quantile(Hosps_mAb_u_2nd, probs = c(0.025, 0.975))
+#Hosps_rsvPreF_u_1st+Hosps_rsvPreF_u_2nd
+quantile((Hosps_no_u_1st-Hosps_mAb_u_1st)/Hosps_no_u_1st*100, probs = c(0.025, 0.975))
 
 #total episodes per scenario
-OP_no_df_1st+OP_no_df_2nd+ED_no_df_1st+ED_no_df_2nd+Hosps_no_df_1st+Hosps_no_df_2nd
-quantile(OP_no_df_1st+OP_no_df_2nd+ED_no_df_1st+ED_no_df_2nd+Hosps_no_df_1st+Hosps_no_df_2nd, probs = c(0.05, 0.95))
-quantile(OP_no_df_1st+ED_no_df_1st+Hosps_no_df_1st, probs = c(0.05, 0.95))
-quantile(OP_no_df_2nd+ED_no_df_2nd+Hosps_no_df_2nd, probs = c(0.05, 0.95))
-OP_mAb_df_1st+OP_mAb_df_2nd+ED_mAb_df_1st+ED_mAb_df_2nd+Hosps_mAb_df_1st+Hosps_mAb_df_2nd
-quantile(OP_mAb_df_1st+OP_mAb_df_2nd+ED_mAb_df_1st+ED_mAb_df_2nd+Hosps_mAb_df_1st+Hosps_mAb_df_2nd, probs = c(0.05, 0.95))
-quantile(OP_mAb_df_1st+ED_mAb_df_1st+Hosps_mAb_df_1st, probs = c(0.05, 0.95))
-quantile(OP_mAb_df_2nd+ED_mAb_df_2nd+Hosps_mAb_df_2nd, probs = c(0.05, 0.95))
-quantile(((OP_no_df_1st+ED_no_df_1st+Hosps_no_df_1st)-(OP_mAb_df_1st+ED_mAb_df_1st+Hosps_mAb_df_1st))/(OP_no_df_1st+ED_no_df_1st+Hosps_no_df_1st)*100, probs = c(0.05, 0.95))
+#OP_no_u_1st+OP_no_u_2nd+ED_no_u_1st+ED_no_u_2nd+Hosps_no_u_1st+Hosps_no_u_2nd
+#quantile(OP_no_u_1st+OP_no_u_2nd+ED_no_u_1st+ED_no_u_2nd+Hosps_no_u_1st+Hosps_no_u_2nd, probs = c(0.025, 0.975))
+quantile(OP_no_u_1st+ED_no_u_1st+Hosps_no_u_1st, probs = c(0.025, 0.975))
+#quantile(OP_no_u_2nd+ED_no_u_2nd+Hosps_no_u_2nd, probs = c(0.025, 0.975))
+#OP_mAb_u_1st+OP_mAb_u_2nd+ED_mAb_u_1st+ED_mAb_u_2nd+Hosps_mAb_u_1st+Hosps_mAb_u_2nd
+#quantile(OP_mAb_u_1st+OP_mAb_u_2nd+ED_mAb_u_1st+ED_mAb_u_2nd+Hosps_mAb_u_1st+Hosps_mAb_u_2nd, probs = c(0.025, 0.975))
+quantile(OP_mAb_u_1st+ED_mAb_u_1st+Hosps_mAb_u_1st, probs = c(0.025, 0.975))
+#quantile(OP_mAb_u_2nd+ED_mAb_u_2nd+Hosps_mAb_u_2nd, probs = c(0.025, 0.975))
+quantile(((OP_no_u_1st+ED_no_u_1st+Hosps_no_u_1st)-(OP_mAb_u_1st+ED_mAb_u_1st+Hosps_mAb_u_1st))/(OP_no_u_1st+ED_no_u_1st+Hosps_no_u_1st)*100, probs = c(0.025, 0.975))
+
+#first year of life patient level events
+quantile((OP_no_u_1st_a+ED_no_u_1st_a+Hosps_no_u_1st_a), probs = c(0.025, 0.975))
+quantile((OP_mAb_u_1st_a+ED_mAb_u_1st_a+Hosps_mAb_u_1st_a), probs = c(0.025, 0.975))
+quantile(((OP_no_u_1st_a+ED_no_u_1st_a+Hosps_no_u_1st_a)-(OP_mAb_u_1st_a+ED_mAb_u_1st_a+Hosps_mAb_u_1st_a))/(OP_no_u_1st_a+ED_no_u_1st_a+Hosps_no_u_1st_a)*100, probs = c(0.025, 0.975))
 
 #Point estimate
 #----------------------
-#Outpatient episodes alone: sum point estimates across years and ages
-OP_no_PE_1st+OP_no_PE_2nd
-OP_mAb_PE_1st+OP_mAb_PE_2nd
-OP_rsvPreF_PE_1st+OP_rsvPreF_PE_2nd
+#Outpatient episodes
+OP_no_PE_1st
+OP_mAb_PE_1st
+#OP_no_PE_1st+OP_no_PE_2nd
+#OP_mAb_PE_1st+OP_mAb_PE_2nd
+#OP_rsvPreF_PE_1st+OP_rsvPreF_PE_2nd
 (OP_no_PE_1st-OP_mAb_PE_1st)/OP_no_PE_1st*100
-#ED episodes alone: sum point estimates across years and ages
-ED_no_PE_1st+ED_no_PE_2nd
-ED_mAb_PE_1st+ED_mAb_PE_2nd
-ED_rsvPreF_PE_1st+ED_rsvPreF_PE_2nd
+
+#ED episodes alone
+ED_no_PE_1st
+ED_mAb_PE_1st
+#ED_no_PE_1st+ED_no_PE_2nd
+#ED_mAb_PE_1st+ED_mAb_PE_2nd
+#ED_rsvPreF_PE_1st+ED_rsvPreF_PE_2nd
 (ED_no_PE_1st-ED_mAb_PE_1st)/ED_no_PE_1st*100
-#hosp episodes alone: sum point estimates across years and ages
-Hosps_no_PE_1st+Hosps_no_PE_2nd
-Hosps_mAb_PE_1st+Hosps_mAb_PE_2nd
-Hosps_rsvPreF_PE_1st+Hosps_rsvPreF_PE_2nd
+
+#Hosp episodes alone
+Hosps_no_PE_1st
+Hosps_mAb_PE_1st
+#Hosps_no_PE_1st+Hosps_no_PE_2nd
+#Hosps_mAb_PE_1st+Hosps_mAb_PE_2nd
+#Hosps_rsvPreF_PE_1st+Hosps_rsvPreF_PE_2nd
 (Hosps_no_PE_1st-Hosps_mAb_PE_1st)/Hosps_no_PE_1st*100
+
 #total episodes per year
 OP_no_PE_1st+ED_no_PE_1st+Hosps_no_PE_1st
 OP_mAb_PE_1st+ED_mAb_PE_1st+Hosps_mAb_PE_1st
-OP_no_PE_1st+OP_no_PE_2nd+ED_no_PE_1st+ED_no_PE_2nd+Hosps_no_PE_1st+Hosps_no_PE_2nd
-OP_mAb_PE_1st+OP_mAb_PE_2nd+ED_mAb_PE_1st+ED_mAb_PE_2nd+Hosps_mAb_PE_1st+Hosps_mAb_PE_2nd
+#OP_no_PE_1st+OP_no_PE_2nd+ED_no_PE_1st+ED_no_PE_2nd+Hosps_no_PE_1st+Hosps_no_PE_2nd
+#OP_mAb_PE_1st+OP_mAb_PE_2nd+ED_mAb_PE_1st+ED_mAb_PE_2nd+Hosps_mAb_PE_1st+Hosps_mAb_PE_2nd
 ((OP_no_PE_1st+ED_no_PE_1st+Hosps_no_PE_1st)-(OP_mAb_PE_1st+ED_mAb_PE_1st+Hosps_mAb_PE_1st))/(OP_no_PE_1st+ED_no_PE_1st+Hosps_no_PE_1st)*100
+
 #first/second year of life totals patient level events w/ combined totals - adjusted
 OP_no_PE_1st_a+ED_no_PE_1st_a+Hosps_no_PE_1st_a
-OP_no_PE_2nd_a+ED_no_PE_2nd_a+Hosps_no_PE_2nd_a
-OP_no_PE_1st_a+ED_no_PE_1st_a+Hosps_no_PE_1st_a+OP_no_PE_2nd_a+ED_no_PE_2nd_a+Hosps_no_PE_2nd_a
+#OP_no_PE_2nd_a+ED_no_PE_2nd_a+Hosps_no_PE_2nd_a
+#OP_no_PE_1st_a+ED_no_PE_1st_a+Hosps_no_PE_1st_a+OP_no_PE_2nd_a+ED_no_PE_2nd_a+Hosps_no_PE_2nd_a
 OP_mAb_PE_1st_a+ED_mAb_PE_1st_a+Hosps_mAb_PE_1st_a
-OP_mAb_PE_2nd_a+ED_mAb_PE_2nd_a+Hosps_mAb_PE_2nd_a
-OP_mAb_PE_1st_a+ED_mAb_PE_1st_a+Hosps_mAb_PE_1st_a+OP_mAb_PE_2nd_a+ED_mAb_PE_2nd_a+Hosps_mAb_PE_2nd_a
+#OP_mAb_PE_2nd_a+ED_mAb_PE_2nd_a+Hosps_mAb_PE_2nd_a
+#OP_mAb_PE_1st_a+ED_mAb_PE_1st_a+Hosps_mAb_PE_1st_a+OP_mAb_PE_2nd_a+ED_mAb_PE_2nd_a+Hosps_mAb_PE_2nd_a
 ((OP_no_PE_1st_a+ED_no_PE_1st_a+Hosps_no_PE_1st_a)-(OP_mAb_PE_1st_a+ED_mAb_PE_1st_a+Hosps_mAb_PE_1st_a))/(OP_no_PE_1st_a+ED_no_PE_1st_a+Hosps_no_PE_1st_a)*100
 
-quantile(((OP_no_df_1st_a+ED_no_df_1st_a+Hosps_no_df_1st_a)-(OP_mAb_df_1st_a+ED_mAb_df_1st_a+Hosps_mAb_df_1st_a))/(OP_no_df_1st_a+ED_no_df_1st_a+Hosps_no_df_1st_a)*100, probs = c(0.05, 0.95))
+
 
 #EXTRA/OLD CODE
-
 # -----------------------------
 # 3RD YEAR OF LIFE DATA
 # -----------------------------
@@ -193,7 +211,7 @@ quantile(((OP_no_df_1st_a+ED_no_df_1st_a+Hosps_no_df_1st_a)-(OP_mAb_df_1st_a+ED_
 #Hosps_rsvPreF_PE_3rd <- rowSums(hosps_rsvPreF_df[,27:38])
 
 # -----------------------------
-# Prior extraction from former health outcomes document
+# Prior extraction
 # -----------------------------
 
 #hdata <- read.csv("Health_outcomes_USAMichpaper.csv")
