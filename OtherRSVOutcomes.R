@@ -1,5 +1,5 @@
 # -----------------------------
-# Potential additional data - Other RSV-LRTI associated outcomes  
+# Potential additional data - Other RSV-LRTI associated outcomes - retired for RSV-USA manuscript  
 # -----------------------------
 
 #source("adjustmentformultipleepisode.R")

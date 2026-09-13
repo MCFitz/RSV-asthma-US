@@ -1,8 +1,9 @@
 # -----------------------------
-# Asthma related input parameters 
+# Asthma input parameters 
 # -----------------------------
 
-trials <- 1000
+trials <- 10000
+trials_old <- 1000
 
 # total population birth cohort use of national center for health statistics data from 2021
 pop_tot <- 3664292
@@ -14,8 +15,9 @@ prev_tot_uci <- 0.096
 prev_tot_lci <- 0.081
 prev_tot_sd <- (prev_tot_uci - prev_tot_lci)/(1.96*2)
 prev_tot_u <- rnorm(trials, prev_tot, prev_tot_sd)
+prev_tot_u_old <- rnorm(trials_old, prev_tot, prev_tot_sd)
 
-# Approximate risk ratio (aOR) of wheeze/asthma given RSV-LRTI
+# aOR of wheeze/asthma given RSV-LRTI
 # based on Brunwasser et al. 2020 adjusted odds ratio 
 # controlling genetic effects 2-6 y/o - 2.45, 95% CI (1.23, 4.88)
 aOR_w <- 2.45 
@@ -27,8 +29,51 @@ log(aOR_w) - log(aOR_w_l) # checking to make sure distance is similar for log-no
 aOR_w_sd <- (log(aOR_w_h) - log(aOR_w_l))/ (1.96*2) # standard deviation
 aOR_w_sample <- rnorm(trials, log(aOR_w), aOR_w_sd) # normal dist of log
 aOR_w_u <- exp(aOR_w_sample) # retransformed uncertainty distribution
+aOR_w_sample_old <- rnorm(trials_old, log(aOR_w), aOR_w_sd) # normal dist of log
+aOR_w_u_old <- exp(aOR_w_sample_old) # retransformed uncertainty distribution
+
+
+# aOR of ASTHMA ALONE given RSV-LRTI
+# based on Brunwasser et al. 2020 adjusted odds ratio, recalculated
+
+aOR_w_asthonly <- 3.02 
+aOR_w_l_asthonly <- 1.79 # lower bound
+aOR_w_h_asthonly <- 5.11 # higher bound
+
+log(aOR_w_asthonly) - log(aOR_w_h_asthonly) # checking to make sure distance is similar for log-normal
+log(aOR_w_asthonly) - log(aOR_w_l_asthonly) # checking to make sure distance is similar for log-normal
+aOR_w_sd_asthonly <- (log(aOR_w_h_asthonly) - log(aOR_w_l_asthonly))/ (1.96*2) # standard deviation
+aOR_w_sample_asthonly <- rnorm(trials, log(aOR_w_asthonly), aOR_w_sd_asthonly) # normal dist of log
+aOR_w_u_asthonly <- exp(aOR_w_sample_asthonly) # retransformed uncertainty distribution
 
 #EXTRA/OLD CODE
+
+# aOR of wheeze/asthma given RSV-LRTI at 5 years of age
+# based on MADHI et al. 2020 adjusted odds ratio - 2.45, 95% CI (1.23, 4.88)
+
+#aOR_w_Mad <- 2.28
+#aOR_w_l_Mad <- 0.34 # lower bound
+#aOR_w_h_Mad <- 4.94 # higher bound
+
+#log(aOR_w_Mad) - log(aOR_w_h_Mad) # checking to make sure distance is similar for log-normal
+#log(aOR_w_Mad) - log(aOR_w_l_Mad) # checking to make sure distance is similar for log-normal
+#aOR_w_sd_Mad <- (log(aOR_w_h_Mad) - log(aOR_w_l_Mad))/ (1.96*2) # standard deviation
+#aOR_w_sample_Mad <- rnorm(trials, log(aOR_w_Mad), aOR_w_sd_Mad) # normal dist of log
+#aOR_w_u_Mad <- exp(aOR_w_sample_Mad) # retransformed uncertainty distribution
+
+# aOR of wheeze/asthma given RSV-LRTI at 5 years of age
+# based on MADHI et al. 2020 adjusted odds ratio - 2.45, 95% CI (1.23, 4.88)
+
+#aOR_w_ins <- 1.33
+#aOR_w_l_ins <- 1.69 # lower bound
+#aOR_w_h_ins <- 1.05 # higher bound
+
+#log(aOR_w_ins) - log(aOR_w_h_ins) # checking to make sure distance is similar for log-normal
+#log(aOR_w_ins) - log(aOR_w_l_ins) # checking to make sure distance is similar for log-normal
+#aOR_w_sd_ins <- (log(aOR_w_h_ins) - log(aOR_w_l_ins))/ (1.96*2) # standard deviation
+#aOR_w_sample_ins <- rnorm(trials, log(aOR_w_ins), aOR_w_sd_ins) # normal dist of log
+#aOR_w_u_ins <- exp(aOR_w_sample_ins) # retransformed uncertainty distribution
+
 
 # -----------------------------
 # DATA FOR COST SAVINGS INCORPORATION

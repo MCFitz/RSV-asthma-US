@@ -2,7 +2,6 @@
 # USA RSV-LRTI related Asthma - Uncertainty Interval data
 # -----------------------------
 
-# Import data from Hutton/Parameters/Functions
 source("ImportData.R")
 source("PARAMS_asthma.R")
 source("asthmafunctions.R")
@@ -11,129 +10,701 @@ source("adjustmentformultipleepisode.R")
 library(tidyverse)
 
 # -----------------------------
-# 1st year of life
+# OR 3.0, 10,000 samples, original waning curve, 50% coverage, sensitive AF definition
+# -----------------------------
+
+#RSV encounters - post adjustment
+tot_RSV_no_u <- OP_no_u_1st_a+ED_no_u_1st_a+Hosps_no_u_1st_a
+tot_RSV_mAb_u <- OP_mAb_u_1st_a+ED_mAb_u_1st_a+Hosps_mAb_u_1st_a
+tot_RSV_rsvPreF_u <- OP_rsvPreF_u_1st_a+ED_rsvPreF_u_1st_a+Hosps_rsvPreF_u_1st_a
+
+# number without RSV-LRTI
+tot_wo_RSV_no_u <- pop_tot - (tot_RSV_no_u)
+tot_wo_RSV_mAb_u <- pop_tot - (tot_RSV_mAb_u)
+tot_wo_RSV_rsvPreF_u <- pop_tot - (tot_RSV_rsvPreF_u)
+
+# calculate rate/prevalence of asthma among those without RSV-LRTI
+r_asth_norsv_u <- prev_no_rsv_func(prev_tot_u, pop_tot, aOR_w_u_asthonly, tot_RSV_no_u, tot_wo_RSV_no_u)
+
+# Generating new RR
+RR_w_u <- aOR_w_u_asthonly/((1-(r_asth_norsv_u))+(r_asth_norsv_u*aOR_w_u_asthonly))
+RR_l <- quantile(RR_w_u, 0.025, na.rm = TRUE)
+RR_h <- quantile(RR_w_u, 0.975, na.rm = TRUE)
+
+#-------------------------------#
+# Using aRR from OR 
+#-------------------------------#
+
+# recalculate rate/prevalence of asthma among those without RSV-LRTI
+r_asth_norsv_u <- prev_no_rsv_func(prev_tot_u, pop_tot, RR_w_u, tot_RSV_no_u, tot_wo_RSV_no_u)
+
+# number of asthma cases among those without RSV-LRTI
+asth_wo_RSV_no_u <- asth_no_rsv_func(tot_wo_RSV_no_u, r_asth_norsv_u)
+asth_wo_RSV_mAb_u <- asth_no_rsv_func(tot_wo_RSV_mAb_u, r_asth_norsv_u)
+asth_wo_RSV_rsvPreF_u <- asth_no_rsv_func(tot_wo_RSV_rsvPreF_u, r_asth_norsv_u)
+
+# number of asthma cases among those with RSV-LRTI
+asth_RSV_no_u <- asth_rsv_func(tot_RSV_no_u, r_asth_norsv_u, RR_w_u)
+asth_RSV_mAb_u <- asth_rsv_func(tot_RSV_mAb_u, r_asth_norsv_u, RR_w_u)
+asth_RSV_rsvPreF_u <- asth_rsv_func(tot_RSV_rsvPreF_u, r_asth_norsv_u, RR_w_u)
+
+# all cause asthma
+tot_asth_no_u <- tot_asth_func(asth_RSV_no_u, asth_wo_RSV_no_u)
+tot_asth_mAb_u <- tot_asth_func(asth_RSV_mAb_u, asth_wo_RSV_mAb_u)
+tot_asth_rsvPreF_u <- tot_asth_func(asth_RSV_rsvPreF_u, asth_wo_RSV_rsvPreF_u)
+
+# total asthma per 100,000 population
+tot_asth_no_pr_u <- tot_asth_no_u / pop_tot * 100000
+tot_asth_mAb_pr_u <- tot_asth_mAb_u / pop_tot * 100000
+tot_asth_rsvPreF_pr_u <- tot_asth_rsvPreF_u / pop_tot * 100000
+
+# total asthma percent decrease from status quo
+tot_asth_mAb_pd_u <- (tot_asth_no_u - tot_asth_mAb_u) / tot_asth_no_u * 100
+tot_asth_rsvPreF_pd_u <- (tot_asth_no_u - tot_asth_rsvPreF_u) / tot_asth_no_u * 100
+
+# number of asthma cases among those with RSV-LRTI had they not been infected
+asth_null_no_u <- asth_rsv_null_func(tot_RSV_no_u, r_asth_norsv_u)
+asth_null_mAb_u <- asth_rsv_null_func(tot_RSV_mAb_u, r_asth_norsv_u)
+asth_null_rsvPreF_u <-asth_rsv_null_func(tot_RSV_rsvPreF_u, r_asth_norsv_u)
+
+# RSV-LRTI attributable asthma
+att_no_u <- asth_rsv_att_func(asth_RSV_no_u, asth_null_no_u)
+att_mAb_u <- asth_rsv_att_func(asth_RSV_mAb_u, asth_null_mAb_u)
+att_rsvPreF_u <-asth_rsv_att_func(asth_RSV_rsvPreF_u, asth_null_rsvPreF_u)
+
+# RSV-LRTI attributable asthma per 100,000 population
+att_no_pr_u <- att_no_u / pop_tot * 100000
+att_mAb_pr_u <- att_mAb_u / pop_tot * 100000
+att_rsvPreF_pr_u <- att_rsvPreF_u / pop_tot * 100000
+
+# RSV-LRTI attributable asthma percent decrease from status quo
+att_mAb_pd_u <- (att_no_u - att_mAb_u) / att_no_u * 100
+att_rsvPreF_pd_u <- (att_no_u - att_rsvPreF_u) / att_no_u * 100
+
+# Total recurrent wheeze/ asthma if all RSV-LRTI were prevented
+# equal to the total population * the baseline rate of asthma among those w/o RSV
+all_rsv_prev_u <- asth_no_rsv_func(pop_tot, r_asth_norsv_u)
+all_rsv_prev_pr_u <- all_rsv_prev_u / pop_tot * 100000
+all_rsv_prev_pd_u <- (tot_asth_no_u - all_rsv_prev_u) / tot_asth_no_u * 100
+
+# CI work
+#Figure 1
+# RSV LRTI Cases 1 yr
+quantile(tot_RSV_no_u, probs = c(0.025, 0.975))
+quantile(tot_RSV_mAb_u, probs = c(0.025, 0.975))
+quantile(tot_RSV_rsvPreF_u, probs = c(0.025, 0.975))
+# RSV LRTI total encounter reduction
+quantile(tot_RSV_no_u-tot_RSV_mAb_u, probs = c(0.025, 0.975))
+# Percent decrease from status quo
+quantile((tot_RSV_no_u-tot_RSV_mAb_u)/tot_RSV_no_u, probs = c(0.025, 0.975))
+quantile((tot_RSV_no_u-tot_RSV_rsvPreF_u)/tot_RSV_no_u, probs = c(0.025, 0.975))
+# All cause asthma cases by intervention
+quantile(tot_asth_no_u, probs = c(0.025, 0.975))
+quantile(tot_asth_mAb_u, probs = c(0.025, 0.975))
+quantile(tot_asth_rsvPreF_u, probs = c(0.025, 0.975))
+quantile(all_rsv_prev_u, probs = c(0.025, 0.975))
+# Difference in outcomes
+quantile(tot_asth_no_u-tot_asth_mAb_u, probs = c(0.025, 0.975))
+quantile(tot_asth_no_u-tot_asth_rsvPreF_u, probs = c(0.025, 0.975))
+quantile(tot_asth_no_u-all_rsv_prev_u, probs = c(0.025, 0.975))
+# all cause Asthma per 100,000 
+quantile(tot_asth_no_pr_u, probs = c(0.025, 0.975))
+quantile(tot_asth_mAb_pr_u, probs = c(0.025, 0.975))
+quantile(tot_asth_rsvPreF_pr_u, probs = c(0.025, 0.975))
+quantile(all_rsv_prev_pr_u, probs = c(0.025, 0.975))
+# all cause Asthma percent reduction
+quantile(tot_asth_mAb_pd_u, probs = c(0.025, 0.975))
+quantile(tot_asth_rsvPreF_pd_u, probs = c(0.025, 0.975))
+quantile(all_rsv_prev_pd_u, probs = c(0.025, 0.975))
+# RSV Attributable asthma
+quantile(att_no_u, probs = c(0.025, 0.975))
+quantile(att_mAb_u, probs = c(0.025, 0.975))
+quantile(att_rsvPreF_u, probs = c(0.025, 0.975))
+# Absolute case reduction from no intervention
+quantile(att_no_u-att_mAb_u, probs = c(0.025, 0.975))
+quantile(att_no_u-att_rsvPreF_u, probs = c(0.025, 0.975))
+quantile(att_no_u, probs = c(0.025, 0.975))
+# RSV Attributable asthma per 100,000
+quantile(att_no_pr_u, probs = c(0.025, 0.975))
+quantile(att_mAb_pr_u, probs = c(0.025, 0.975))
+quantile(att_rsvPreF_pr_u, probs = c(0.025, 0.975))
+# RSV Attributable asthma percent decrease
+quantile(att_mAb_pd_u, probs = c(0.025, 0.975))
+quantile(att_rsvPreF_pd_u, probs = c(0.025, 0.975))
+#PAF - Levin vs direct calculation
+quantile(((tot_RSV_no_u/pop_tot)*(RR_w_u-1))/(((tot_RSV_no_u/pop_tot)*(RR_w_u-1)+1)), probs = c(0.025, 0.975))
+quantile((tot_asth_no_u-all_rsv_prev_u)/tot_asth_no_u, probs = c(0.025, 0.975))
+
+
+# -----------------------------
+# OR 2.45, 10,000 samples, original waning curve, 50% coverage, sensitive AF definition
+# -----------------------------
+
+#RSV encounters - post adjustment
+tot_RSV_no_u_oldOR <- OP_no_u_1st_a+ED_no_u_1st_a+Hosps_no_u_1st_a
+tot_RSV_mAb_u_oldOR <- OP_mAb_u_1st_a+ED_mAb_u_1st_a+Hosps_mAb_u_1st_a
+tot_RSV_rsvPreF_u_oldOR <- OP_rsvPreF_u_1st_a+ED_rsvPreF_u_1st_a+Hosps_rsvPreF_u_1st_a
+
+# number without RSV-LRTI
+tot_wo_RSV_no_u_oldOR <- pop_tot - (tot_RSV_no_u_oldOR)
+tot_wo_RSV_mAb_u_oldOR <- pop_tot - (tot_RSV_mAb_u_oldOR)
+tot_wo_RSV_rsvPreF_u_oldOR <- pop_tot - (tot_RSV_rsvPreF_u_oldOR)
+
+# calculate rate/prevalence of asthma among those without RSV-LRTI
+r_asth_norsv_u_oldOR <- prev_no_rsv_func(prev_tot_u, pop_tot, aOR_w_u, tot_RSV_no_u_oldOR, tot_wo_RSV_no_u_oldOR)
+
+# Generating new RR
+RR_w_u_oldOR <- aOR_w_u/((1-(r_asth_norsv_u_oldOR))+(r_asth_norsv_u_oldOR*aOR_w_u))
+RR_l <- quantile(RR_w_u_oldOR, 0.025, na.rm = TRUE)
+RR_h <- quantile(RR_w_u_oldOR, 0.975, na.rm = TRUE)
+
+#-------------------------------#
+# Using aRR from OR 
+#-------------------------------#
+
+# recalculate rate/prevalence of asthma among those without RSV-LRTI
+r_asth_norsv_u_oldOR <- prev_no_rsv_func(prev_tot_u, pop_tot, RR_w_u_oldOR, tot_RSV_no_u_oldOR, tot_wo_RSV_no_u_oldOR)
+
+# number of asthma cases among those without RSV-LRTI
+asth_wo_RSV_no_u_oldOR <- asth_no_rsv_func(tot_wo_RSV_no_u_oldOR, r_asth_norsv_u_oldOR)
+asth_wo_RSV_mAb_u_oldOR <- asth_no_rsv_func(tot_wo_RSV_mAb_u_oldOR, r_asth_norsv_u_oldOR)
+asth_wo_RSV_rsvPreF_u_oldOR <- asth_no_rsv_func(tot_wo_RSV_rsvPreF_u_oldOR, r_asth_norsv_u_oldOR)
+
+# number of asthma cases among those with RSV-LRTI
+asth_RSV_no_u_oldOR <- asth_rsv_func(tot_RSV_no_u_oldOR, r_asth_norsv_u_oldOR, RR_w_u_oldOR)
+asth_RSV_mAb_u_oldOR <- asth_rsv_func(tot_RSV_mAb_u_oldOR, r_asth_norsv_u_oldOR, RR_w_u_oldOR)
+asth_RSV_rsvPreF_u_oldOR <- asth_rsv_func(tot_RSV_rsvPreF_u_oldOR, r_asth_norsv_u_oldOR, RR_w_u_oldOR)
+
+# all cause asthma
+tot_asth_no_u_oldOR <- tot_asth_func(asth_RSV_no_u_oldOR, asth_wo_RSV_no_u_oldOR)
+tot_asth_mAb_u_oldOR <- tot_asth_func(asth_RSV_mAb_u_oldOR, asth_wo_RSV_mAb_u_oldOR)
+tot_asth_rsvPreF_u_oldOR <- tot_asth_func(asth_RSV_rsvPreF_u_oldOR, asth_wo_RSV_rsvPreF_u_oldOR)
+
+# total asthma per 100,000 population
+tot_asth_no_pr_u_oldOR <- tot_asth_no_u_oldOR / pop_tot * 100000
+tot_asth_mAb_pr_u_oldOR <- tot_asth_mAb_u_oldOR / pop_tot * 100000
+tot_asth_rsvPreF_pr_u_oldOR <- tot_asth_rsvPreF_u_oldOR / pop_tot * 100000
+
+# total asthma percent decrease from status quo
+tot_asth_mAb_pd_u_oldOR <- (tot_asth_no_u_oldOR - tot_asth_mAb_u_oldOR) / tot_asth_no_u_oldOR * 100
+tot_asth_rsvPreF_pd_u_oldOR <- (tot_asth_no_u_oldOR - tot_asth_rsvPreF_u_oldOR) / tot_asth_no_u_oldOR * 100
+
+# number of asthma cases among those with RSV-LRTI had they not been infected
+asth_null_no_u_oldOR <- asth_rsv_null_func(tot_RSV_no_u_oldOR, r_asth_norsv_u_oldOR)
+asth_null_mAb_u_oldOR <- asth_rsv_null_func(tot_RSV_mAb_u_oldOR, r_asth_norsv_u_oldOR)
+asth_null_rsvPreF_u_oldOR <-asth_rsv_null_func(tot_RSV_rsvPreF_u_oldOR, r_asth_norsv_u_oldOR)
+
+# RSV-LRTI attributable asthma
+att_no_u_oldOR <- asth_rsv_att_func(asth_RSV_no_u_oldOR, asth_null_no_u_oldOR)
+att_mAb_u_oldOR <- asth_rsv_att_func(asth_RSV_mAb_u_oldOR, asth_null_mAb_u_oldOR)
+att_rsvPreF_u_oldOR <-asth_rsv_att_func(asth_RSV_rsvPreF_u_oldOR, asth_null_rsvPreF_u_oldOR)
+
+# RSV-LRTI attributable asthma per 100,000 population
+att_no_pr_u_oldOR <- att_no_u_oldOR / pop_tot * 100000
+att_mAb_pr_u_oldOR <- att_mAb_u_oldOR / pop_tot * 100000
+att_rsvPreF_pr_u_oldOR <- att_rsvPreF_u_oldOR / pop_tot * 100000
+
+# RSV-LRTI attributable asthma percent decrease from status quo
+att_mAb_pd_u_oldOR <- (att_no_u_oldOR - att_mAb_u_oldOR) / att_no_u_oldOR * 100
+att_rsvPreF_pd_u_oldOR <- (att_no_u_oldOR - att_rsvPreF_u_oldOR) / att_no_u_oldOR * 100
+
+# Total recurrent wheeze/ asthma if all RSV-LRTI were prevented
+# equal to the total population * the baseline rate of asthma among those w/o RSV
+all_rsv_prev_u_oldOR <- asth_no_rsv_func(pop_tot, r_asth_norsv_u_oldOR)
+all_rsv_prev_pr_u_oldOR<- all_rsv_prev_u_oldOR / pop_tot * 100000
+all_rsv_prev_pd_u_oldOR <- (tot_asth_no_u_oldOR - all_rsv_prev_u_oldOR) / tot_asth_no_u_oldOR * 100
+
+# CI work
+#Figure 1
+# RSV LRTI Cases 1 yr
+quantile(tot_RSV_no_u_oldOR, probs = c(0.025, 0.975))
+quantile(tot_RSV_mAb_u_oldOR, probs = c(0.025, 0.975))
+quantile(tot_RSV_rsvPreF_u_oldOR, probs = c(0.025, 0.975))
+# RSV LRTI total encounter reduction
+quantile(tot_RSV_no_u_oldOR-tot_RSV_mAb_u_oldOR, probs = c(0.025, 0.975))
+# Percent decrease from status quo
+quantile((tot_RSV_no_u_oldOR-tot_RSV_mAb_u_oldOR)/tot_RSV_no_u_oldOR, probs = c(0.025, 0.975))
+quantile((tot_RSV_no_u_oldOR-tot_RSV_rsvPreF_u_oldOR)/tot_RSV_no_u_oldOR, probs = c(0.025, 0.975))
+# All cause asthma cases by intervention
+quantile(tot_asth_no_u_oldOR, probs = c(0.025, 0.975))
+quantile(tot_asth_mAb_u_oldOR, probs = c(0.025, 0.975))
+quantile(tot_asth_rsvPreF_u_oldOR, probs = c(0.025, 0.975))
+quantile(all_rsv_prev_u_oldOR, probs = c(0.025, 0.975))
+# Difference in outcomes
+quantile(tot_asth_no_u_oldOR-tot_asth_mAb_u_oldOR, probs = c(0.025, 0.975))
+quantile(tot_asth_no_u_oldOR-tot_asth_rsvPreF_u_oldOR, probs = c(0.025, 0.975))
+quantile(tot_asth_no_u_oldOR-all_rsv_prev_u_oldOR, probs = c(0.025, 0.975))
+# all cause Asthma per 100,000 
+quantile(tot_asth_no_pr_u_oldOR, probs = c(0.025, 0.975))
+quantile(tot_asth_mAb_pr_u_oldOR, probs = c(0.025, 0.975))
+quantile(tot_asth_rsvPreF_pr_u_oldOR, probs = c(0.025, 0.975))
+quantile(all_rsv_prev_pr_u_oldOR, probs = c(0.025, 0.975))
+# all cause Asthma percent reduction
+quantile(tot_asth_mAb_pd_u_oldOR, probs = c(0.025, 0.975))
+quantile(tot_asth_rsvPreF_pd_u_oldOR, probs = c(0.025, 0.975))
+quantile(all_rsv_prev_pd_u_oldOR, probs = c(0.025, 0.975))
+# RSV Attributable asthma
+quantile(att_no_u_oldOR, probs = c(0.025, 0.975))
+quantile(att_mAb_u_oldOR, probs = c(0.025, 0.975))
+quantile(att_rsvPreF_u_oldOR, probs = c(0.025, 0.975))
+# Absolute case reduction from no intervention
+quantile(att_no_u_oldOR-att_mAb_u_oldOR, probs = c(0.025, 0.975))
+quantile(att_no_u_oldOR-att_rsvPreF_u_oldOR, probs = c(0.025, 0.975))
+quantile(att_no_u_oldOR, probs = c(0.025, 0.975))
+# RSV Attributable asthma per 100,000
+quantile(att_no_pr_u_oldOR, probs = c(0.025, 0.975))
+quantile(att_mAb_pr_u_oldOR, probs = c(0.025, 0.975))
+quantile(att_rsvPreF_pr_u_oldOR, probs = c(0.025, 0.975))
+# RSV Attributable asthma percent decrease
+quantile(att_mAb_pd_u_oldOR, probs = c(0.025, 0.975))
+quantile(att_rsvPreF_pd_u_oldOR, probs = c(0.025, 0.975))
+#PAF - Levin vs direct calculation
+quantile(((tot_RSV_no_u_oldOR/pop_tot)*(RR_w_u_oldOR-1))/(((tot_RSV_no_u_oldOR/pop_tot)*(RR_w_u_oldOR-1)+1)), probs = c(0.025, 0.975))
+quantile((tot_asth_no_u_oldOR-all_rsv_prev_u_oldOR)/tot_asth_no_u_oldOR, probs = c(0.025, 0.975))
+
+
+# -----------------------------
+# OR 3.0, 50% coverage, original waning curve, specific definition
+# -----------------------------
+
+#RSV LRTI encounters
+tot_RSV_no_u_spec <- OP_no_u_1st_a_spec+ED_no_u_1st_a_spec+Hosps_no_u_1st_a_spec
+tot_RSV_mAb_u_spec <- OP_mAb_u_1st_a_spec+ED_mAb_u_1st_a_spec+Hosps_mAb_u_1st_a_spec
+
+# number without RSV-LRTI
+tot_wo_RSV_no_u_spec <- pop_tot - (tot_RSV_no_u_spec)
+tot_wo_RSV_mAb_u_spec <- pop_tot - (tot_RSV_mAb_u_spec)
+
+# calculate rate/prevalence of asthma among those without RSV-LRTI
+r_asth_norsv_u_spec <- prev_no_rsv_func(prev_tot_u, pop_tot, aOR_w_u_asthonly, tot_RSV_no_u_spec, tot_wo_RSV_no_u_spec)
+
+# Generating RR from OR
+RR_w_u_spec <- aOR_w_u_asthonly /((1-(r_asth_norsv_u_spec))+(r_asth_norsv_u_spec*aOR_w_u_asthonly))
+RR_l_spec <- quantile(RR_w_u_spec, 0.025, na.rm = TRUE)
+RR_h_spec <- quantile(RR_w_u_spec, 0.975, na.rm = TRUE)
+
+#-------------------------------#
+# Using aRR from OR 
+#-------------------------------#
+
+# recalculate rate/prevalence of asthma among those without RSV-LRTI
+r_asth_norsv_u_spec <- prev_no_rsv_func(prev_tot_u, pop_tot, RR_w_u_spec, tot_RSV_no_u_spec, tot_wo_RSV_no_u_spec)
+
+# number of asthma cases among those without RSV-LRTI
+asth_wo_RSV_no_u_spec <- asth_no_rsv_func(tot_wo_RSV_no_u_spec, r_asth_norsv_u_spec)
+asth_wo_RSV_mAb_u_spec <- asth_no_rsv_func(tot_wo_RSV_mAb_u_spec, r_asth_norsv_u_spec)
+
+# number of asthma cases among those with RSV-LRTI
+asth_RSV_no_u_spec <- asth_rsv_func(tot_RSV_no_u_spec, r_asth_norsv_u_spec, RR_w_u_spec)
+asth_RSV_mAb_u_spec <- asth_rsv_func(tot_RSV_mAb_u_spec, r_asth_norsv_u_spec, RR_w_u_spec)
+
+# all cause with asthma
+tot_asth_no_u_spec <- tot_asth_func(asth_RSV_no_u_spec, asth_wo_RSV_no_u_spec)
+tot_asth_mAb_u_spec <- tot_asth_func(asth_RSV_mAb_u_1st_adj_spec, asth_wo_RSV_mAb_u_spec)
+
+# total asthma per 100,000 population
+tot_asth_no_pr_u_spec <- tot_asth_no_u_spec / pop_tot * 100000
+tot_asth_mAb_pr_u_spec <- tot_asth_mAb_u_spec / pop_tot * 100000
+
+# total asthma percent decrease from status quo
+tot_asth_mAb_pd_u_spec <- (tot_asth_no_u_spec - tot_asth_mAb_u_spec) / tot_asth_no_u_spec * 100
+
+# number of asthma cases among those with RSV-LRTI had they not been infected
+asth_null_no_u_spec <- asth_rsv_null_func(tot_RSV_no_u_spec, r_asth_norsv_u_spec)
+asth_null_mAb_u_spec <- asth_rsv_null_func(tot_RSV_mAb_u_spec, r_asth_norsv_u_spec)
+
+# RSV-LRTI attributable asthma
+att_no_u_spec <- asth_rsv_att_func(asth_RSV_no_u_spec, asth_null_no_u_spec)
+att_mAb_u_spec <- asth_rsv_att_func(asth_RSV_mAb_u_spec, asth_null_mAb_u_spec)
+
+# RSV-LRTI attributable asthma per 100,000 population
+att_no_pr_u_spec <- att_no_u_spec / pop_tot * 100000
+att_mAb_pr_u_spec <- att_mAb_u_spec / pop_tot * 100000
+
+# RSV-LRTI attributable asthma percent decrease from status quo
+att_mAb_pd_u_spec <- (att_no_u_spec - att_mAb_u_spec) / att_no_u_spec * 100
+
+# Total recurrent wheeze/ asthma if all RSV-LRTI were prevented
+# equal to the total population * the baseline rate of asthma among those w/o RSV
+all_rsv_prev_u_spec <- asth_no_rsv_func(pop_tot, r_asth_norsv_u_spec)
+all_rsv_prev_pr_u_spec <- all_rsv_prev_u_spec / pop_tot * 100000
+all_rsv_prev_pd_u_spec <- (tot_asth_no_u_spec - all_rsv_prev_u_spec) / tot_asth_no_u_spec * 100
+
+# CI work
+#Figure 1
+# RSV LRTI encounters
+quantile(tot_RSV_no_u_spec, probs = c(0.025, 0.975))
+quantile(tot_RSV_mAb_u_spec, probs = c(0.025, 0.975))
+# RSV LRTI total encounter reduction
+quantile(tot_RSV_no_u_spec-tot_RSV_mAb_u_spec, probs = c(0.025, 0.975))
+# Percent decrease from status quo
+quantile((tot_RSV_no_u_spec-tot_RSV_mAb_u_spec)/tot_RSV_no_u_spec, probs = c(0.025, 0.975))
+# all cause asthma cases by intervention
+quantile(tot_asth_no_u_spec, probs = c(0.025, 0.975))
+quantile(tot_asth_mAb_u_spec, probs = c(0.025, 0.975))
+quantile(all_rsv_prev_u_spec, probs = c(0.025, 0.975))
+# Difference in all cause asthma outcomes
+quantile(tot_asth_no_u_spec-tot_asth_mAb_u_spec, probs = c(0.025, 0.975))
+quantile(tot_asth_no_u_spec-all_rsv_prev_u_spec, probs = c(0.025, 0.975))
+# all cause Asthma per 100,000 
+quantile(tot_asth_no_pr_u_spec, probs = c(0.025, 0.975))
+quantile(tot_asth_mAb_pr_u_spec, probs = c(0.025, 0.975))
+quantile(all_rsv_prev_pr_u_spec, probs = c(0.025, 0.975))
+# all cause Asthma percent reduction
+quantile(tot_asth_mAb_pd_u_spec, probs = c(0.025, 0.975))
+quantile(all_rsv_prev_pd_u_spec, probs = c(0.025, 0.975))
+# RSV Attributable asthma
+quantile(att_no_u_spec, probs = c(0.025, 0.975))
+quantile(att_mAb_u_spec, probs = c(0.025, 0.975))
+# Absolute case reduction from no intervention
+quantile(att_no_u_spec-att_mAb_u_spec, probs = c(0.025, 0.975))
+quantile(att_no_u_spec, probs = c(0.025, 0.975))
+# RSV Attributable asthma per 100,000
+quantile(att_no_pr_u_spec, probs = c(0.025, 0.975))
+quantile(att_mAb_pr_u_spec, probs = c(0.025, 0.975))
+# RSV Attributable asthma percent decrease
+quantile(att_mAb_pd_u_spec, probs = c(0.025, 0.975))
+#PAF - Levin vs direct calculation
+quantile(((tot_RSV_no_u_spec/pop_tot)*(RR_w_u_spec-1))/(((tot_RSV_no_u_spec/pop_tot)*(RR_w_u_spec-1)+1)), probs = c(0.025, 0.975))
+quantile((tot_asth_no_u_spec-all_rsv_prev_u_spec)/tot_asth_no_u_spec, probs = c(0.025, 0.975))
+
+
+# -----------------------------
+# 10,000 samples, OR 3.0, new weaning curve, 50% coverage, sensitive definition
 # -----------------------------
 
 #Combining yearly DFs by scenario - post adjustment for outcomes during 1st year
-tot_RSV_no_u_1st <- OP_no_u_1st_a+ED_no_u_1st_a+Hosps_no_u_1st_a
-tot_RSV_mAb_u_1st <- OP_mAb_u_1st_a+ED_mAb_u_1st_a+Hosps_mAb_u_1st_a
-#tot_RSV_rsvPreF_u_1st <- OP_rsvPreF_df_1st_a+ED_rsvPreF_df_1st_a+Hosps_rsvPreF_df_1st_a
+tot_RSV_no_u_adjc <- OP_no_u_adjc_a+ED_no_u_adjc_a+Hosps_no_u_adjc_a
+tot_RSV_mAb_u_adjc <- OP_mAb_u_adjc_a+ED_mAb_u_adjc_a+Hosps_mAb_u_adjc_a
 
-# number of kids without RSV-LRTI associated for each strategy
-tot_wo_RSV_no_u_1st <- pop_tot - (tot_RSV_no_u_1st)
-tot_wo_RSV_mAb_u_1st <- pop_tot - (tot_RSV_mAb_u_1st)
-#tot_wo_RSV_rsvPreF_u_1st <- pop_tot - (tot_RSV_rsvPreF_u_1st)
+# number without RSV-LRTI
+tot_wo_RSV_no_u_adjc <- pop_tot - (tot_RSV_no_u_adjc)
+tot_wo_RSV_mAb_u_adjc <- pop_tot - (tot_RSV_mAb_u_adjc)
 
 # calculate rate/prevalence of asthma among those without RSV-LRTI
-r_asth_norsv_u_1st <- prev_no_rsv_func(prev_tot_u, pop_tot, aOR_w_u, tot_RSV_no_u_1st, tot_wo_RSV_no_u_1st)
+r_asth_norsv_u_adjc <- prev_no_rsv_func(prev_tot_u, pop_tot, aOR_w_u_asthonly, tot_RSV_no_u_adjc, tot_wo_RSV_no_u_adjc)
 
-# Generating new RR
-RR_w_u_1st_adj <- aOR_w_u/((1-(r_asth_norsv_u_1st))+(r_asth_norsv_u_1st*aOR_w_u))
-RR_l_1st_adj <- quantile(RR_w_u_1st_adj, 0.025, na.rm = TRUE)
-RR_h_1st_adj <- quantile(RR_w_u_1st_adj, 0.975, na.rm = TRUE)
+# generating RR from OR
+RR_w_u_adjc <- aOR_w_u_asthonly/((1-(r_asth_norsv_u_adjc))+(r_asth_norsv_u_adjc*aOR_w_u_asthonly))
+RR_l_adjc <- quantile(RR_w_u_adjc, 0.025, na.rm = TRUE)
+RR_h_adjc <- quantile(RR_w_u_adjc, 0.975, na.rm = TRUE)
 
 #-------------------------------#
 # Using aRR from OR 
 #-------------------------------#
 
 # calculate rate/prevalence of asthma among those without RSV-LRTI
-r_asth_norsv_u_1st_adj <- prev_no_rsv_func(prev_tot_u, pop_tot, RR_w_u_1st_adj, tot_RSV_no_u_1st, tot_wo_RSV_no_u_1st)
+r_asth_norsv_u_adjc <- prev_no_rsv_func(prev_tot_u, pop_tot, RR_w_u_adjc, tot_RSV_no_u_adjc, tot_wo_RSV_no_u_adjc)
 
 # number of asthma cases among those without RSV-LRTI
-asth_wo_RSV_no_u_1st_adj <- asth_no_rsv_func(tot_wo_RSV_no_u_1st, r_asth_norsv_u_1st_adj)
-asth_wo_RSV_mAb_u_1st_adj <- asth_no_rsv_func(tot_wo_RSV_mAb_u_1st, r_asth_norsv_u_1st_adj)
-#asth_wo_RSV_rsvPreF_u_1st_adj <- asth_no_rsv_func(tot_wo_RSV_rsvPreF_u_1st, r_asth_norsv_u_1st_adj)
+asth_wo_RSV_no_u_adjc <- asth_no_rsv_func(tot_wo_RSV_no_u_adjc, r_asth_norsv_u_adjc)
+asth_wo_RSV_mAb_u_adjc <- asth_no_rsv_func(tot_wo_RSV_mAb_u_adjc, r_asth_norsv_u_adjc)
 
 # number of asthma cases among those with RSV-LRTI
-asth_RSV_no_u_1st_adj <- asth_rsv_func(tot_RSV_no_u_1st, r_asth_norsv_u_1st_adj, RR_w_u_1st_adj)
-asth_RSV_mAb_u_1st_adj <- asth_rsv_func(tot_RSV_mAb_u_1st, r_asth_norsv_u_1st_adj, RR_w_u_1st_adj)
-#asth_RSV_rsvPreF_u_1st_adj <- asth_rsv_func(tot_RSV_rsvPreF_u_1st, r_asth_norsv_u_1st_adj, RR_w_u_1st_adj)
+asth_RSV_no_u_adjc <- asth_rsv_func(tot_RSV_no_u_adjc, r_asth_norsv_u_adjc, RR_w_u_adjc)
+asth_RSV_mAb_u_adjc <- asth_rsv_func(tot_RSV_mAb_u_adjc, r_asth_norsv_u_adjc, RR_w_u_adjc)
 
-# total with asthma
-tot_asth_no_u_1st_adj <- tot_asth_func(asth_RSV_no_u_1st_adj, asth_wo_RSV_no_u_1st_adj)
-tot_asth_mAb_u_1st_adj <- tot_asth_func(asth_RSV_mAb_u_1st_adj, asth_wo_RSV_mAb_u_1st_adj)
-#tot_asth_rsvPreF_u_1st_adj <- tot_asth_func(asth_RSV_rsvPreF_u_1st_adj, asth_wo_RSV_rsvPreF_u_1st_adj)
+# all cause  asthma
+tot_asth_no_u_adjc <- tot_asth_func(asth_RSV_no_u_adjc, asth_wo_RSV_no_u_adjc)
+tot_asth_mAb_u_adjc <- tot_asth_func(asth_RSV_mAb_u_adjc, asth_wo_RSV_mAb_u_adjc)
 
 # total asthma per 100,000 population
-tot_asth_no_pr_u_1st_adj <- tot_asth_no_u_1st_adj / pop_tot * 100000
-tot_asth_mAb_pr_u_1st_adj <- tot_asth_mAb_u_1st_adj / pop_tot * 100000
-#tot_asth_rsvPreF_pr_u_1st_adj <- tot_asth_rsvPreF_u_1st_adj / pop_tot * 100000
+tot_asth_no_pr_u_adjc <- tot_asth_no_u_adjc / pop_tot * 100000
+tot_asth_mAb_pr_u_adjc <- tot_asth_mAb_u_adjc / pop_tot * 100000
 
 # total asthma percent decrease from status quo
-tot_asth_mAb_pd_u_1st_adj <- (tot_asth_no_u_1st_adj - tot_asth_mAb_u_1st_adj) / tot_asth_no_u_1st_adj * 100
-#tot_asth_rsvPreF_pd_u_1st_adj <- (tot_asth_no_u_1st_adj - tot_asth_rsvPreF_u_1st_adj) / tot_asth_no_u_1st_adj * 100
+tot_asth_mAb_pd_u_adjc <- (tot_asth_no_u_adjc - tot_asth_mAb_u_adjc) / tot_asth_no_u_adjc * 100
 
 # number of asthma cases among those with RSV-LRTI had they not been infected
-asth_null_no_u_1st_adj <- asth_rsv_null_func(tot_RSV_no_u_1st, r_asth_norsv_u_1st_adj)
-asth_null_mAb_u_1st_adj <- asth_rsv_null_func(tot_RSV_mAb_u_1st, r_asth_norsv_u_1st_adj)
-#asth_null_rsvPreF_u_1st_adj <-asth_rsv_null_func(tot_RSV_rsvPreF_u_1st, r_asth_norsv_u_1st_adj)
+asth_null_no_u_adjc <- asth_rsv_null_func(tot_RSV_no_u_adjc, r_asth_norsv_u_adjc)
+asth_null_mAb_u_adjc <- asth_rsv_null_func(tot_RSV_mAb_u_adjc, r_asth_norsv_u_adjc)
 
 # RSV-LRTI attributable asthma
-att_no_u_1st_adj <- asth_rsv_att_func(asth_RSV_no_u_1st_adj, asth_null_no_u_1st_adj)
-att_mAb_u_1st_adj <- asth_rsv_att_func(asth_RSV_mAb_u_1st_adj, asth_null_mAb_u_1st_adj)
-#att_rsvPreF_u_1st_adj <-asth_rsv_att_func(asth_RSV_rsvPreF_u_1st_adj, asth_null_rsvPreF_u_1st_adj)
+att_no_u_adjc <- asth_rsv_att_func(asth_RSV_no_u_adjc, asth_null_no_u_adjc)
+att_mAb_u_adjc <- asth_rsv_att_func(asth_RSV_mAb_u_adjc, asth_null_mAb_u_adjc)
 
 # RSV-LRTI attributable asthma per 100,000 population
-att_no_pr_u_1st_adj <- att_no_u_1st_adj / pop_tot * 100000
-att_mAb_pr_u_1st_adj <- att_mAb_u_1st_adj / pop_tot * 100000
-#att_rsvPreF_pr_u_1st_adj <- att_rsvPreF_u_1st_adj / pop_tot * 100000
+att_no_pr_u_adjc <- att_no_u_adjc / pop_tot * 100000
+att_mAb_pr_u_adjc <- att_mAb_u_adjc / pop_tot * 100000
 
 # RSV-LRTI attributable asthma percent decrease from status quo
-att_mAb_pd_u_1st_adj <- (att_no_u_1st_adj - att_mAb_u_1st_adj) / att_no_u_1st_adj * 100
-#att_rsvPreF_pd_u_1st_adj <- (att_no_u_1st_adj - att_rsvPreF_u_1st_adj) / att_no_u_1st_adj * 100
+att_mAb_pd_u_adjc <- (att_no_u_adjc - att_mAb_u_adjc) / att_no_u_adjc * 100
 
 # Total recurrent wheeze/ asthma if all RSV-LRTI were prevented
 # equal to the total population * the baseline rate of asthma among those w/o RSV
-all_rsv_prev_u_1st_adj <- asth_no_rsv_func(pop_tot, r_asth_norsv_u_1st_adj)
-all_rsv_prev_pr_u_1st_adj <- all_rsv_prev_u_1st_adj / pop_tot * 100000
-all_rsv_prev_pd_u_1st_adj <- (tot_asth_no_u_1st_adj - all_rsv_prev_u_1st_adj) / tot_asth_no_u_1st_adj * 100
+all_rsv_prev_u_adjc <- asth_no_rsv_func(pop_tot, r_asth_norsv_u_adjc)
+all_rsv_prev_pr_u_adjc <- all_rsv_prev_u_adjc / pop_tot * 100000
+all_rsv_prev_pd_u_adjc <- (tot_asth_no_u_adjc - all_rsv_prev_u_adjc) / tot_asth_no_u_adjc * 100
+
+# CI work
+#Figure 1
+# RSV LRTI encounters
+quantile(tot_RSV_no_u_adjc, probs = c(0.025, 0.975))
+quantile(tot_RSV_mAb_u_adjc, probs = c(0.025, 0.975))
+#absolute RSV LRTI encounter reduction
+quantile(tot_RSV_no_u_adjc-tot_RSV_mAb_u_adjc, probs = c(0.025, 0.975))
+# Percent decrease from status quo
+quantile((tot_RSV_no_u_adjc-tot_RSV_mAb_u_adjc)/tot_RSV_no_u_adjc, probs = c(0.025, 0.975))
+# all cause asthma cases by intervention
+quantile(tot_asth_no_u_adjc, probs = c(0.025, 0.975))
+quantile(tot_asth_mAb_u_adjc, probs = c(0.025, 0.975))
+quantile(all_rsv_prev_u_adjc, probs = c(0.025, 0.975))
+# Difference in outcomes
+quantile(tot_asth_no_u_adjc-tot_asth_mAb_u_adjc, probs = c(0.025, 0.975))
+quantile(tot_asth_no_u_adjc-all_rsv_prev_u_adjc, probs = c(0.025, 0.975))
+# Total Asthma per 100,000 
+quantile(tot_asth_no_pr_u_adjc, probs = c(0.025, 0.975))
+quantile(tot_asth_mAb_pr_u_adjc, probs = c(0.025, 0.975))
+quantile(all_rsv_prev_pr_u_adjc, probs = c(0.025, 0.975))
+# Total Asthma percent reduction
+quantile(tot_asth_mAb_pd_u_adjc, probs = c(0.025, 0.975))
+quantile(all_rsv_prev_pd_u_adjc, probs = c(0.025, 0.975))
+# RSV Attributable asthma
+quantile(att_no_u_adjc, probs = c(0.025, 0.975))
+quantile(att_mAb_u_adjc, probs = c(0.025, 0.975))
+# Absolute case reduction from no intervention
+quantile(att_no_u_adjc-att_mAb_u_adjc, probs = c(0.025, 0.975))
+quantile(att_no_u_adjc, probs = c(0.025, 0.975))
+# RSV Attributable asthma per 100,000
+quantile(att_no_pr_u_adjc, probs = c(0.025, 0.975))
+quantile(att_mAb_pr_u_adjc, probs = c(0.025, 0.975))
+# RSV Attributable asthma percent decrease
+quantile(att_mAb_pd_u_adjc, probs = c(0.025, 0.975))
+#PAF - Levin vs direct calculation
+quantile(((tot_RSV_no_u_adjc/pop_tot)*(RR_w_u_adjc-1))/(((tot_RSV_no_u_adjc/pop_tot)*(RR_w_u_adjc-1)+1)), probs = c(0.025, 0.975))
+quantile((tot_asth_no_u_adjc_adj-all_rsv_prev_u_adjc)/tot_asth_no_u_adjc, probs = c(0.025, 0.975))
+
+# -----------------------------
+# 10,000 samples, OR 3.0, original waning curve, 90% coverage, sensitive definition
+# -----------------------------
+
+#RSV LRTI encounters
+tot_RSV_no_u_adjcov <- OP_no_u_adjcov_a+ED_no_u_adjcov_a+Hosps_no_u_adjcov_a
+tot_RSV_mAb_u_adjcov <- OP_mAb_u_adjcov_a+ED_mAb_u_adjcov_a+Hosps_mAb_u_adjcov_a
+
+# number without RSV-LRTI
+tot_wo_RSV_no_u_adjcov <- pop_tot - (tot_RSV_no_u_adjcov)
+tot_wo_RSV_mAb_u_adjcov <- pop_tot - (tot_RSV_mAb_u_adjcov)
+
+# calculate rate/prevalence of asthma among those without RSV-LRTI
+r_asth_norsv_u_adjcov <- prev_no_rsv_func(prev_tot_u, pop_tot, aOR_w_u_asthonly, tot_RSV_no_u_adjcov, tot_wo_RSV_no_u_adjcov)
+
+# RR from OR
+RR_w_u_adjcov <- aOR_w_u_asthonly/((1-(r_asth_norsv_u_adjcov))+(r_asth_norsv_u_adjcov*aOR_w_u_asthonly))
+RR_l_adjcov <- quantile(RR_w_u_adjcov, 0.025, na.rm = TRUE)
+RR_h_adjcov <- quantile(RR_w_u_adjcov, 0.975, na.rm = TRUE)
+
+#-------------------------------#
+# Using aRR from OR 
+#-------------------------------#
+
+# recalculate rate/prevalence of asthma among those without RSV-LRTI
+r_asth_norsv_u_adjcov <- prev_no_rsv_func(prev_tot_u, pop_tot, RR_w_u_adjcov, tot_RSV_no_u_adjcov, tot_wo_RSV_no_u_adjcov)
+
+# number of asthma cases among those without RSV-LRTI
+asth_wo_RSV_no_u_adjcov <- asth_no_rsv_func(tot_wo_RSV_no_u_adjcov, r_asth_norsv_u_adjcov)
+asth_wo_RSV_mAb_u_adjcov <- asth_no_rsv_func(tot_wo_RSV_mAb_u_adjcov, r_asth_norsv_u_adjcov)
+
+# number of asthma cases among those with RSV-LRTI
+asth_RSV_no_u_adjcov <- asth_rsv_func(tot_RSV_no_u_adjcov, r_asth_norsv_u_adjcov, RR_w_u_adjcov)
+asth_RSV_mAb_u_adjcov <- asth_rsv_func(tot_RSV_mAb_u_adjcov, r_asth_norsv_u_adjcov, RR_w_u_adjcov)
+
+# all cause with asthma
+tot_asth_no_u_adjcov <- tot_asth_func(asth_RSV_no_u_adjcov, asth_wo_RSV_no_u_adjcov)
+tot_asth_mAb_u_adjcov <- tot_asth_func(asth_RSV_mAb_u_adjcov, asth_wo_RSV_mAb_u_adjcov)
+
+# total asthma per 100,000 population
+tot_asth_no_pr_u_adjcov <- tot_asth_no_u_adjcov / pop_tot * 100000
+tot_asth_mAb_pr_u_adjcov <- tot_asth_mAb_u_adjcov / pop_tot * 100000
+
+# total asthma percent decrease from status quo
+tot_asth_mAb_pd_u_adjcov <- (tot_asth_no_u_adjcov - tot_asth_mAb_u_adjcov) / tot_asth_no_u_adjcov * 100
+
+# number of asthma cases among those with RSV-LRTI had they not been infected
+asth_null_no_u_adjcov <- asth_rsv_null_func(tot_RSV_no_u_adjcov, r_asth_norsv_u_adjcov)
+asth_null_mAb_u_adjcov <- asth_rsv_null_func(tot_RSV_mAb_u_adjcov, r_asth_norsv_u_adjcov)
+
+# RSV-LRTI attributable asthma
+att_no_u_adjcov <- asth_rsv_att_func(asth_RSV_no_u_adjcov, asth_null_no_u_adjcov)
+att_mAb_u_adjcov <- asth_rsv_att_func(asth_RSV_mAb_u_adjcov, asth_null_mAb_u_adjcov)
+
+# RSV-LRTI attributable asthma per 100,000 population
+att_no_pr_u_adjcov <- att_no_u_adjcov / pop_tot * 100000
+att_mAb_pr_u_adjcov <- att_mAb_u_adjcov / pop_tot * 100000
+
+# RSV-LRTI attributable asthma percent decrease from status quo
+att_mAb_pd_u_adjcov <- (att_no_u_adjcov - att_mAb_u_adjcov) / att_no_u_adjcov * 100
+
+# Total recurrent wheeze/ asthma if all RSV-LRTI were prevented
+# equal to the total population * the baseline rate of asthma among those w/o RSV
+all_rsv_prev_u_adjcov <- asth_no_rsv_func(pop_tot, r_asth_norsv_u_adjcov)
+all_rsv_prev_pr_u_adjcov <- all_rsv_prev_u_adjcov / pop_tot * 100000
+all_rsv_prev_pd_u_adjcov <- (tot_asth_no_u_adjcov - all_rsv_prev_u_adjcov) / tot_asth_no_u_adjcov * 100
 
 # CI work
 #Figure 1
 # RSV LRTI Cases 1 yr
-quantile(tot_RSV_no_u_1st, probs = c(0.025, 0.975))
-quantile(tot_RSV_mAb_u_1st, probs = c(0.025, 0.975))
-#quantile(tot_RSV_rsvPreF_u_1st, probs = c(0.025, 0.975))
+quantile(tot_RSV_no_u_adjcov, probs = c(0.025, 0.975))
+quantile(tot_RSV_mAb_u_adjcov, probs = c(0.025, 0.975))
+# RSV LRTI encounters difference
+quantile(tot_RSV_no_u_adjcov-tot_RSV_mAb_u_adjcov, probs = c(0.025, 0.975))
 # Percent decrease from status quo
-quantile((tot_RSV_no_u_1st-tot_RSV_mAb_u_1st)/tot_RSV_no_u_1st, probs = c(0.025, 0.975))
-#quantile((tot_RSV_no_u_1st-tot_RSV_rsvPreF_u_1st)/tot_RSV_no_u_1st, probs = c(0.025, 0.975))
-# Total asthma cases by intervention
-quantile(tot_asth_no_u_1st_adj, probs = c(0.025, 0.975))
-quantile(tot_asth_mAb_u_1st_adj, probs = c(0.025, 0.975))
-#quantile(tot_asth_rsvPreF_u_1st_adj, probs = c(0.025, 0.975))
-quantile(all_rsv_prev_u_1st_adj, probs = c(0.025, 0.975))
+quantile((tot_RSV_no_u_adjcov-tot_RSV_mAb_u_adjcov)/tot_RSV_no_u_adjcov, probs = c(0.025, 0.975))
+# all cause asthma 
+quantile(tot_asth_no_u_adjcov, probs = c(0.025, 0.975))
+quantile(tot_asth_mAb_u_adjcov, probs = c(0.025, 0.975))
 # Difference in outcomes
-quantile(tot_asth_no_u_1st_adj-tot_asth_mAb_u_1st_adj, probs = c(0.025, 0.975))
-#quantile(tot_asth_no_u_1st_adj-tot_asth_rsvPreF_u_1st_adj, probs = c(0.025, 0.975))
-quantile(tot_asth_no_u_1st_adj-all_rsv_prev_u_1st_adj, probs = c(0.025, 0.975))
+quantile(tot_asth_no_u_adjcov-tot_asth_mAb_u_adjcov, probs = c(0.025, 0.975))
 # Total Asthma per 100,000 
-quantile(tot_asth_no_pr_u_1st_adj, probs = c(0.025, 0.975))
-quantile(tot_asth_mAb_pr_u_1st_adj, probs = c(0.025, 0.975))
-#quantile(tot_asth_rsvPreF_pr_u_1st_adj, probs = c(0.025, 0.975))
-quantile(all_rsv_prev_pr_u_1st_adj, probs = c(0.025, 0.975))
+quantile(tot_asth_no_pr_u_adjcov, probs = c(0.025, 0.975))
+quantile(tot_asth_mAb_pr_u_adjcov, probs = c(0.025, 0.975))
 # Total Asthma percent reduction
-quantile(tot_asth_mAb_pd_u_1st_adj, probs = c(0.025, 0.975))
-#quantile(tot_asth_rsvPreF_pd_u_1st_adj, probs = c(0.025, 0.975))
-quantile(all_rsv_prev_pd_u_1st_adj, probs = c(0.025, 0.975))
+quantile(tot_asth_mAb_pd_u_adjcov, probs = c(0.025, 0.975))
 # RSV Attributable asthma
-quantile(att_no_u_1st_adj, probs = c(0.025, 0.975))
-quantile(att_mAb_u_1st_adj, probs = c(0.025, 0.975))
-#quantile(att_rsvPreF_u_1st_adj, probs = c(0.025, 0.975))
+quantile(att_no_u_adjcov, probs = c(0.025, 0.975))
+quantile(att_mAb_u_adjcov, probs = c(0.025, 0.975))
 # Absolute case reduction from no intervention
-quantile(att_no_u_1st_adj-att_mAb_u_1st_adj, probs = c(0.025, 0.975))
-#quantile(att_no_u_1st_adj-att_rsvPreF_u_1st_adj, probs = c(0.025, 0.975))
-quantile(att_no_u_1st_adj, probs = c(0.025, 0.975))
+quantile(att_no_u_adjcov-att_mAb_u_adjcov, probs = c(0.025, 0.975))
+quantile(att_no_u_adjcov, probs = c(0.025, 0.975))
 # RSV Attributable asthma per 100,000
-quantile(att_no_pr_u_1st_adj, probs = c(0.025, 0.975))
-quantile(att_mAb_pr_u_1st_adj, probs = c(0.025, 0.975))
-#quantile(att_rsvPreF_pr_u_1st_adj, probs = c(0.025, 0.975))
+quantile(att_no_pr_u_adjcov, probs = c(0.025, 0.975))
+quantile(att_mAb_pr_u_adjcov, probs = c(0.025, 0.975))
 # RSV Attributable asthma percent decrease
-quantile(att_mAb_pd_u_1st_adj, probs = c(0.025, 0.975))
-#quantile(att_rsvPreF_pd_u_1st_adj, probs = c(0.025, 0.975))
+quantile(att_mAb_pd_u_adjcov, probs = c(0.025, 0.975))
 #PAF - Levin vs direct calculation
-quantile(((tot_RSV_no_u_1st/pop_tot)*(RR_w_u_1st_adj-1))/(((tot_RSV_no_u_1st/pop_tot)*(RR_w_u_1st_adj-1)+1)), probs = c(0.025, 0.975))
-quantile((tot_asth_no_u_1st_adj-all_rsv_prev_u_1st_adj)/tot_asth_no_u_1st_adj, probs = c(0.025, 0.975))
+quantile(((tot_RSV_no_u_adjcov/pop_tot)*(RR_w_u_adjcov-1))/(((tot_RSV_no_u_adjcov/pop_tot)*(RR_w_u_adjcov-1)+1)), probs = c(0.025, 0.975))
+quantile((tot_asth_no_u_adjcov-all_rsv_prev_u_adjcov)/tot_asth_no_u_adjcov, probs = c(0.025, 0.975))
 
+
+
+# -----------------------------
+# OR 2.45, 10,000 samples, original waning curve, 50% coverage, sensitive AF definition
+# -----------------------------
+
+#RSV encounters - post adjustment
+tot_RSV_no_u_old <- OP_no_u_old_1st_a+ED_no_u_old_1st_a+Hosps_no_u_old_1st_a
+tot_RSV_mAb_u_old <- OP_mAb_u_old_1st_a+ED_mAb_u_old_1st_a+Hosps_mAb_u_old_1st_a
+tot_RSV_rsvPreF_u_old <- OP_rsvPreF_u_old_1st_a+ED_rsvPreF_u_old_1st_a+Hosps_rsvPreF_u_old_1st_a
+
+# number without RSV-LRTI
+tot_wo_RSV_no_u_old <- pop_tot - (tot_RSV_no_u_old)
+tot_wo_RSV_mAb_u_old <- pop_tot - (tot_RSV_mAb_u_old)
+tot_wo_RSV_rsvPreF_u_old <- pop_tot - (tot_RSV_rsvPreF_u_old)
+
+# calculate rate/prevalence of asthma among those without RSV-LRTI
+r_asth_norsv_u_old <- prev_no_rsv_func(prev_tot_u_old, pop_tot, aOR_w_u_old, tot_RSV_no_u_old, tot_wo_RSV_no_u_old)
+
+# Generating new RR
+RR_w_u_old <- aOR_w_u_old/((1-(r_asth_norsv_u_old))+(r_asth_norsv_u_old*aOR_w_u_old))
+RR_l <- quantile(RR_w_u_old, 0.025, na.rm = TRUE)
+RR_h <- quantile(RR_w_u_old, 0.975, na.rm = TRUE)
+
+#-------------------------------#
+# Using aRR from OR 
+#-------------------------------#
+
+# recalculate rate/prevalence of asthma among those without RSV-LRTI
+r_asth_norsv_u_old <- prev_no_rsv_func(prev_tot_u_old, pop_tot, RR_w_u_old, tot_RSV_no_u_old, tot_wo_RSV_no_u_old)
+
+# number of asthma cases among those without RSV-LRTI
+asth_wo_RSV_no_u_old <- asth_no_rsv_func(tot_wo_RSV_no_u_old, r_asth_norsv_u_old)
+asth_wo_RSV_mAb_u_old <- asth_no_rsv_func(tot_wo_RSV_mAb_u_old, r_asth_norsv_u_old)
+asth_wo_RSV_rsvPreF_u_old <- asth_no_rsv_func(tot_wo_RSV_rsvPreF_u_old, r_asth_norsv_u_old)
+
+# number of asthma cases among those with RSV-LRTI
+asth_RSV_no_u_old <- asth_rsv_func(tot_RSV_no_u_old, r_asth_norsv_u_old, RR_w_u_old)
+asth_RSV_mAb_u_old <- asth_rsv_func(tot_RSV_mAb_u_old, r_asth_norsv_u_old, RR_w_u_old)
+asth_RSV_rsvPreF_u_old <- asth_rsv_func(tot_RSV_rsvPreF_u_old, r_asth_norsv_u_old, RR_w_u_old)
+
+# all cause asthma
+tot_asth_no_u_old <- tot_asth_func(asth_RSV_no_u_old, asth_wo_RSV_no_u_old)
+tot_asth_mAb_u_old <- tot_asth_func(asth_RSV_mAb_u_old, asth_wo_RSV_mAb_u_old)
+tot_asth_rsvPreF_u_old <- tot_asth_func(asth_RSV_rsvPreF_u_old, asth_wo_RSV_rsvPreF_u_old)
+
+# total asthma per 100,000 population
+tot_asth_no_pr_u_old <- tot_asth_no_u_old / pop_tot * 100000
+tot_asth_mAb_pr_u_old <- tot_asth_mAb_u_old / pop_tot * 100000
+tot_asth_rsvPreF_pr_u_old <- tot_asth_rsvPreF_u_old / pop_tot * 100000
+
+# total asthma percent decrease from status quo
+tot_asth_mAb_pd_u_old <- (tot_asth_no_u_old - tot_asth_mAb_u_old) / tot_asth_no_u_old * 100
+tot_asth_rsvPreF_pd_u_old <- (tot_asth_no_u_old - tot_asth_rsvPreF_u_old) / tot_asth_no_u_old * 100
+
+# number of asthma cases among those with RSV-LRTI had they not been infected
+asth_null_no_u_old <- asth_rsv_null_func(tot_RSV_no_u_old, r_asth_norsv_u_old)
+asth_null_mAb_u_old <- asth_rsv_null_func(tot_RSV_mAb_u_old, r_asth_norsv_u_old)
+asth_null_rsvPreF_u_old <-asth_rsv_null_func(tot_RSV_rsvPreF_u_old, r_asth_norsv_u_old)
+
+# RSV-LRTI attributable asthma
+att_no_u_old <- asth_rsv_att_func(asth_RSV_no_u_old, asth_null_no_u_old)
+att_mAb_u_old <- asth_rsv_att_func(asth_RSV_mAb_u_old, asth_null_mAb_u_old)
+att_rsvPreF_u_old <-asth_rsv_att_func(asth_RSV_rsvPreF_u_old, asth_null_rsvPreF_u_old)
+
+# RSV-LRTI attributable asthma per 100,000 population
+att_no_pr_u_old <- att_no_u_old / pop_tot * 100000
+att_mAb_pr_u_old <- att_mAb_u_old / pop_tot * 100000
+att_rsvPreF_pr_u_old <- att_rsvPreF_u_old / pop_tot * 100000
+
+# RSV-LRTI attributable asthma percent decrease from status quo
+att_mAb_pd_u_old <- (att_no_u_old - att_mAb_u_old) / att_no_u_old * 100
+att_rsvPreF_pd_u_old <- (att_no_u_old - att_rsvPreF_u_old) / att_no_u_old * 100
+
+# Total recurrent wheeze/ asthma if all RSV-LRTI were prevented
+# equal to the total population * the baseline rate of asthma among those w/o RSV
+all_rsv_prev_u_old <- asth_no_rsv_func(pop_tot, r_asth_norsv_u_old)
+all_rsv_prev_pr_u_old<- all_rsv_prev_u_old / pop_tot * 100000
+all_rsv_prev_pd_u_old <- (tot_asth_no_u_old - all_rsv_prev_u_old) / tot_asth_no_u_old * 100
+
+# CI work
+#Figure 1
+# RSV LRTI Cases 1 yr
+quantile(tot_RSV_no_u_old, probs = c(0.025, 0.975))
+quantile(tot_RSV_mAb_u_old, probs = c(0.025, 0.975))
+quantile(tot_RSV_rsvPreF_u_old, probs = c(0.025, 0.975))
+# RSV LRTI total encounter reduction
+quantile(tot_RSV_no_u_old-tot_RSV_mAb_u_old, probs = c(0.025, 0.975))
+# Percent decrease from status quo
+quantile((tot_RSV_no_u_old-tot_RSV_mAb_u_old)/tot_RSV_no_u_old, probs = c(0.025, 0.975))
+quantile((tot_RSV_no_u_old-tot_RSV_rsvPreF_u_old)/tot_RSV_no_u_old, probs = c(0.025, 0.975))
+# All cause asthma cases by intervention
+quantile(tot_asth_no_u_old, probs = c(0.025, 0.975))
+quantile(tot_asth_mAb_u_old, probs = c(0.025, 0.975))
+quantile(tot_asth_rsvPreF_u_old, probs = c(0.025, 0.975))
+quantile(all_rsv_prev_u_old, probs = c(0.025, 0.975))
+# Difference in outcomes
+quantile(tot_asth_no_u_old-tot_asth_mAb_u_old, probs = c(0.025, 0.975))
+quantile(tot_asth_no_u_old-tot_asth_rsvPreF_u_old, probs = c(0.025, 0.975))
+quantile(tot_asth_no_u_old-all_rsv_prev_u_old, probs = c(0.025, 0.975))
+# all cause Asthma per 100,000 
+quantile(tot_asth_no_pr_u_old, probs = c(0.025, 0.975))
+quantile(tot_asth_mAb_pr_u_old, probs = c(0.025, 0.975))
+quantile(tot_asth_rsvPreF_pr_u_old, probs = c(0.025, 0.975))
+quantile(all_rsv_prev_pr_u_old, probs = c(0.025, 0.975))
+# all cause Asthma percent reduction
+quantile(tot_asth_mAb_pd_u_old, probs = c(0.025, 0.975))
+quantile(tot_asth_rsvPreF_pd_u_old, probs = c(0.025, 0.975))
+quantile(all_rsv_prev_pd_u_old, probs = c(0.025, 0.975))
+# RSV Attributable asthma
+quantile(att_no_u_old, probs = c(0.025, 0.975))
+quantile(att_mAb_u_old, probs = c(0.025, 0.975))
+quantile(att_rsvPreF_u_old, probs = c(0.025, 0.975))
+# Absolute case reduction from no intervention
+quantile(att_no_u_old-att_mAb_u_old, probs = c(0.025, 0.975))
+quantile(att_no_u_old-att_rsvPreF_u_old, probs = c(0.025, 0.975))
+quantile(att_no_u_old, probs = c(0.025, 0.975))
+# RSV Attributable asthma per 100,000
+quantile(att_no_pr_u_old, probs = c(0.025, 0.975))
+quantile(att_mAb_pr_u_old, probs = c(0.025, 0.975))
+quantile(att_rsvPreF_pr_u_old, probs = c(0.025, 0.975))
+# RSV Attributable asthma percent decrease
+quantile(att_mAb_pd_u_old, probs = c(0.025, 0.975))
+quantile(att_rsvPreF_pd_u_old, probs = c(0.025, 0.975))
+#PAF - Levin vs direct calculation
+quantile(((tot_RSV_no_u_old/pop_tot)*(RR_w_u_old-1))/(((tot_RSV_no_u_old/pop_tot)*(RR_w_u_old-1)+1)), probs = c(0.025, 0.975))
+quantile((tot_asth_no_u_old-all_rsv_prev_u_old)/tot_asth_no_u_old, probs = c(0.025, 0.975))
+
+
+#extra code/left over
 
 # -----------------------------
 # Combining 1st and 2nd year of life

@@ -25,7 +25,7 @@ crude_medicaid <- .374
 percent_private  <- crude_private/(crude_medicaid+crude_private)
 percent_medicaid <- crude_medicaid/(crude_medicaid+crude_private)
 
-n_sim <- 1000
+n_sim <- 10000
 
 # ---------------------------
 # Point estimates
@@ -85,9 +85,10 @@ Hosps_no_u_1st_a <- Hosps_no_u_1st*ratio_multiple_ep_CI_1st
 OP_mAb_u_1st_a <- OP_mAb_u_1st*ratio_multiple_ep_CI_1st
 ED_mAb_u_1st_a <- ED_mAb_u_1st*ratio_multiple_ep_CI_1st
 Hosps_mAb_u_1st_a <- Hosps_mAb_u_1st*ratio_multiple_ep_CI_1st
-#OP_rsvPreF_u_1st_a <- OP_rsvPreF_u_1st*ratio_multiple_ep_CI_1st
-#ED_rsvPreF_u_1st_a <- ED_rsvPreF_u_1st*ratio_multiple_ep_CI_1st
-#Hosps_rsvPreF_u_1st_a <- Hosps_rsvPreF_u_1st*ratio_multiple_ep_CI_1st
+
+OP_rsvPreF_u_1st_a <- OP_rsvPreF_u_1st*ratio_multiple_ep_CI_1st
+ED_rsvPreF_u_1st_a <- ED_rsvPreF_u_1st*ratio_multiple_ep_CI_1st
+Hosps_rsvPreF_u_1st_a <- Hosps_rsvPreF_u_1st*ratio_multiple_ep_CI_1st
 
 #PE adjustment 1st year of life
 OP_no_PE_1st_a = OP_no_PE_1st*ratio_multiple_ep_1st
@@ -96,9 +97,182 @@ Hosps_no_PE_1st_a = Hosps_no_PE_1st*ratio_multiple_ep_1st
 OP_mAb_PE_1st_a = OP_mAb_PE_1st*ratio_multiple_ep_1st
 ED_mAb_PE_1st_a = ED_mAb_PE_1st*ratio_multiple_ep_1st
 Hosps_mAb_PE_1st_a = Hosps_mAb_PE_1st*ratio_multiple_ep_1st
-#OP_rsvPreF_PE_1st_a = OP_rsvPreF_PE_1st*ratio_multiple_ep_1st
-#ED_rsvPreF_PE_1st_a = ED_rsvPreF_PE_1st*ratio_multiple_ep_1st
-#Hosps_rsvPreF_PE_1st_a = Hosps_rsvPreF_PE_1st*ratio_multiple_ep_1st
+OP_rsvPreF_PE_1st_a = OP_rsvPreF_PE_1st*ratio_multiple_ep_1st
+ED_rsvPreF_PE_1st_a = ED_rsvPreF_PE_1st*ratio_multiple_ep_1st
+Hosps_rsvPreF_PE_1st_a = Hosps_rsvPreF_PE_1st*ratio_multiple_ep_1st
+
+#Uncertainty adjustment first year of life - adjusted weaning curve and 10,000
+OP_no_u_adjc_a <- OP_no_u_adjc*ratio_multiple_ep_CI_1st
+ED_no_u_adjc_a <- ED_no_u_adjc*ratio_multiple_ep_CI_1st
+Hosps_no_u_adjc_a <- Hosps_no_u_adjc*ratio_multiple_ep_CI_1st
+OP_mAb_u_adjc_a <- OP_mAb_u_adjc*ratio_multiple_ep_CI_1st
+ED_mAb_u_adjc_a <- ED_mAb_u_adjc*ratio_multiple_ep_CI_1st
+Hosps_mAb_u_adjc_a <- Hosps_mAb_u_adjc*ratio_multiple_ep_CI_1st
+
+#PE adjustment 1st year of life
+OP_no_PE_adjc_a = OP_no_PE_adjc*ratio_multiple_ep_1st
+ED_no_PE_adjc_a = ED_no_PE_adjc*ratio_multiple_ep_1st
+Hosps_no_PE_adjc_a = Hosps_no_PE_adjc*ratio_multiple_ep_1st
+OP_mAb_PE_adjc_a = OP_mAb_PE_adjc*ratio_multiple_ep_1st
+ED_mAb_PE_adjc_a = ED_mAb_PE_adjc*ratio_multiple_ep_1st
+Hosps_mAb_PE_adjc_a = Hosps_mAb_PE_adjc*ratio_multiple_ep_1st
+
+#Uncertainty adjustment first year of life - adjusted curve and coverage, 10,000
+OP_no_u_adjcov_a <- OP_no_u_adjcov*ratio_multiple_ep_CI_1st
+ED_no_u_adjcov_a <- ED_no_u_adjcov*ratio_multiple_ep_CI_1st
+Hosps_no_u_adjcov_a <- Hosps_no_u_adjcov*ratio_multiple_ep_CI_1st
+OP_mAb_u_adjcov_a <- OP_mAb_u_adjcov*ratio_multiple_ep_CI_1st
+ED_mAb_u_adjcov_a <- ED_mAb_u_adjcov*ratio_multiple_ep_CI_1st
+Hosps_mAb_u_adjcov_a <- Hosps_mAb_u_adjcov*ratio_multiple_ep_CI_1st
+
+#PE adjustment 1st year of life
+OP_no_PE_adjcov_a = OP_no_PE_adjcov*ratio_multiple_ep_1st
+ED_no_PE_adjcov_a = ED_no_PE_adjcov*ratio_multiple_ep_1st
+Hosps_no_PE_adjcov_a = Hosps_no_PE_adjcov*ratio_multiple_ep_1st
+OP_mAb_PE_adjcov_a = OP_mAb_PE_adjcov*ratio_multiple_ep_1st
+ED_mAb_PE_adjcov_a = ED_mAb_PE_adjcov*ratio_multiple_ep_1st
+Hosps_mAb_PE_adjcov_a = Hosps_mAb_PE_adjcov*ratio_multiple_ep_1st
+
+# ---------------------------
+# Specific RSV definition
+# MarketScan Commercial + Medicaid
+# Creating uncertainty around ratio of multiple visits per one episode during first year of life
+# ---------------------------
+
+set.seed(123)
+
+# Gantenberg Inputs - Marketscan and Medicaid
+episode_private_spec  <- 25409
+visit_private_spec    <- 43301
+
+episode_medicaid_spec <- 67357
+visit_medicaid_spec   <- 110167
+
+n_sim <- 10000
+
+# ---------------------------
+# Point estimates
+# ---------------------------
+
+cf_private_spec  <- episode_private_spec / visit_private_spec
+cf_medicaid_spec <- episode_medicaid_spec / visit_medicaid_spec
+
+ratio_multiple_ep_1st_spec <- percent_private  * cf_private_spec +
+  percent_medicaid * cf_medicaid_spec
+
+cf_private_spec
+cf_medicaid_spec
+ratio_multiple_ep_1st_spec
+
+# ---------------------------
+# Beta uncertainty for episode/visit proportions
+# ---------------------------
+
+cf_private_u_spec <- rbeta(
+  n_sim,
+  shape1 = episode_private_spec + 1,
+  shape2 = visit_private_spec - episode_private_spec + 1
+)
+
+cf_medicaid_u_spec <- rbeta(
+  n_sim,
+  shape1 = episode_medicaid_spec + 1,
+  shape2 = visit_medicaid_spec - episode_medicaid_spec + 1
+)
+
+
+# ---------------------------
+# Final weighted correction factor
+# ---------------------------
+
+ratio_multiple_ep_CI_1st_spec <- percent_private  * cf_private_u_spec +
+  percent_medicaid * cf_medicaid_u_spec
+
+
+# ---------------------------
+# Summary
+# ---------------------------
+
+summary_df_spec <- data.frame(
+  estimate = ratio_multiple_ep_CI_1st_spec,
+  lower_95 = quantile(ratio_multiple_ep_CI_1st_spec, 0.025),
+  upper_95 = quantile(ratio_multiple_ep_CI_1st_spec, 0.975)
+)
+
+summary_df_spec
+
+
+#Uncertainty adjustment first year of life
+OP_no_u_1st_a_spec <- OP_no_u_1st*ratio_multiple_ep_CI_1st_spec
+ED_no_u_1st_a_spec <- ED_no_u_1st*ratio_multiple_ep_CI_1st_spec
+Hosps_no_u_1st_a_spec <- Hosps_no_u_1st*ratio_multiple_ep_CI_1st_spec
+OP_mAb_u_1st_a_spec <- OP_mAb_u_1st*ratio_multiple_ep_CI_1st_spec
+ED_mAb_u_1st_a_spec <- ED_mAb_u_1st*ratio_multiple_ep_CI_1st_spec
+Hosps_mAb_u_1st_a_spec <- Hosps_mAb_u_1st*ratio_multiple_ep_CI_1st_spec
+OP_rsvPreF_u_1st_a_spec <- OP_rsvPreF_u_1st*ratio_multiple_ep_CI_1st_spec
+ED_rsvPreF_u_1st_a_spec <- ED_rsvPreF_u_1st*ratio_multiple_ep_CI_1st_spec
+Hosps_rsvPreF_u_1st_a_spec <- Hosps_rsvPreF_u_1st*ratio_multiple_ep_CI_1st_spec
+
+#PE adjustment 1st year of life
+OP_no_PE_1st_a_spec = OP_no_PE_1st*ratio_multiple_ep_1st_spec
+ED_no_PE_1st_a_spec = ED_no_PE_1st*ratio_multiple_ep_1st_spec
+Hosps_no_PE_1st_a_spec = Hosps_no_PE_1st*ratio_multiple_ep_1st_spec
+OP_mAb_PE_1st_a_spec = OP_mAb_PE_1st*ratio_multiple_ep_1st_spec
+ED_mAb_PE_1st_a_spec = ED_mAb_PE_1st*ratio_multiple_ep_1st_spec
+Hosps_mAb_PE_1st_a_spec = Hosps_mAb_PE_1st*ratio_multiple_ep_1st_spec
+OP_rsvPreF_PE_1st_a_spec = OP_rsvPreF_PE_1st*ratio_multiple_ep_1st_spec
+ED_rsvPreF_PE_1st_a_spec = ED_rsvPreF_PE_1st*ratio_multiple_ep_1st_spec
+Hosps_rsvPreF_PE_1st_a_spec = Hosps_rsvPreF_PE_1st*ratio_multiple_ep_1st_spec
+
+# Gantenberg Inputs - Marketscan and Medicaid - for old analysis
+n_sim_old <- 1000
+
+# ---------------------------
+# Beta uncertainty for episode/visit proportions
+# ---------------------------
+
+cf_private_u_old <- rbeta(
+  n_sim_old,
+  shape1 = episode_private + 1,
+  shape2 = visit_private - episode_private + 1
+)
+
+cf_medicaid_u_old <- rbeta(
+  n_sim_old,
+  shape1 = episode_medicaid + 1,
+  shape2 = visit_medicaid - episode_medicaid + 1
+)
+
+# ---------------------------
+# Final weighted correction factor
+# ---------------------------
+
+ratio_multiple_ep_CI_old_1st <- percent_private  * cf_private_u_old +
+  percent_medicaid * cf_medicaid_u_old
+
+
+#Uncertainty adjustment first year of life - old analysis
+OP_no_u_old_1st_a <- OP_no_u_old_1st*ratio_multiple_ep_CI_old_1st
+ED_no_u_old_1st_a <- ED_no_u_old_1st*ratio_multiple_ep_CI_old_1st
+Hosps_no_u_old_1st_a <- Hosps_no_u_old_1st*ratio_multiple_ep_CI_old_1st
+OP_mAb_u_old_1st_a <- OP_mAb_u_old_1st*ratio_multiple_ep_CI_old_1st
+ED_mAb_u_old_1st_a <- ED_mAb_u_old_1st*ratio_multiple_ep_CI_old_1st
+Hosps_mAb_u_old_1st_a <- Hosps_mAb_u_old_1st*ratio_multiple_ep_CI_old_1st
+OP_rsvPreF_u_old_1st_a <- OP_rsvPreF_u_old_1st*ratio_multiple_ep_CI_old_1st
+ED_rsvPreF_u_old_1st_a <- ED_rsvPreF_u_old_1st*ratio_multiple_ep_CI_old_1st
+Hosps_rsvPreF_u_old_1st_a <- Hosps_rsvPreF_u_old_1st*ratio_multiple_ep_CI_old_1st
+
+#PE adjustment 1st year of life - old analysis
+OP_no_PE_old_1st_a = OP_no_PE_old_1st*ratio_multiple_ep_1st
+ED_no_PE_old_1st_a = ED_no_PE_old_1st*ratio_multiple_ep_1st
+Hosps_no_PE_old_1st_a = Hosps_no_PE_old_1st*ratio_multiple_ep_1st
+OP_mAb_PE_old_1st_a = OP_mAb_PE_old_1st*ratio_multiple_ep_1st
+ED_mAb_PE_old_1st_a = ED_mAb_PE_old_1st*ratio_multiple_ep_1st
+Hosps_mAb_PE_old_1st_a = Hosps_mAb_PE_old_1st*ratio_multiple_ep_1st
+OP_rsvPreF_PE_old_1st_a = OP_rsvPreF_PE_old_1st*ratio_multiple_ep_1st
+ED_rsvPreF_PE_old_1st_a = ED_rsvPreF_PE_old_1st*ratio_multiple_ep_1st
+Hosps_rsvPreF_PE_old_1st_a = Hosps_rsvPreF_PE_old_1st*ratio_multiple_ep_1st
+
 
 # -----------------------------
 # ADJUSTMENT OF 2ND YEAR OF LIFE https://pmc.ncbi.nlm.nih.gov/articles/PMC9150639/ ; https://pmc.ncbi.nlm.nih.gov/articles/PMC9934310/ ; vs using adjustment factor from first year of life

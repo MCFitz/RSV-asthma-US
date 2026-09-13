@@ -1,11 +1,6 @@
 # -----------------------------
-#  Asthma Project Functions
+#  Asthma Functions
 # -----------------------------
-
-# function to calculate 95% credible intervals
-CI_func <- function(dist) {
-  c(quantile(dist, probs = 0.05), quantile(dist, probs = 0.95))
-}
 
 # function to calculate the prevalence of asthma/wheeze among those w/o RSV-LRTI
 prev_no_rsv_func <- function(prev_tot, pop_tot, rr_w,
@@ -49,6 +44,13 @@ asth_rsv_att_func <- function(asth_rsv, asth_rsv_null){
 # -----------------------------
 # PRIOR MORTALITY ADJUSTMENT FUNCTION
 # -----------------------------
+
+
+# function to calculate 95% credible intervals
+#CI_func <- function(dist) {
+#  c(quantile(dist, probs = 0.05), quantile(dist, probs = 0.95))
+#}
+
 
 # Decision not to adjust for mortality due to low infant mortality rate 
 # function for adjusting number of RSV-LRTI to account for all cause mortality
