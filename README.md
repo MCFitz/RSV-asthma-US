@@ -9,5 +9,11 @@
 #OtherRSVOutcomes: Old code - relegated to potential future analysis - Potential for adding additional infection based outcomes
 #Figures: old code - relegated to annals of workspace. Workbook for figures in the paper
 #RSVMultipleEpisodeWorkbook: excel doc which I used to calculate the odds of having multiple episodes for the same infection during the first season of RSV - has both sensitive and specific definition
-#Healthoutcomes: Original 1st year dataset for primary analysis
+#Healthoutcomes: Original 1st year dataset for old primary analysis, only 1,000 samples
 #Healthoutcomescomplete: Dataset we are currently using for results - includes PE and 2/3rd year of life data
+#PAF: old code - relegated to future analysis comparing our calculated PAF to abreo paper PAD
+#Healthoutcomesnewcurve: RSV LRTI outcomes under different waning curve for sensitivity analysis
+#Healthoutcomesnewsamples:  RSV LRTI outcomes under original waning curve, 10,000 samples
+#Healthoutcomesnewcov:  RSV LRTI outcomes under original waning curve, 10,000 samples, 90% coverage for sensitivity analysis
+#my_data.csv: output used for some direct output to excel when working 
+#tornadoplot.R: creating tornado plot - using PE and doing a uni-variable analysis to determine which variable contributes the most to the width of our UI
